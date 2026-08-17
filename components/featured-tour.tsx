@@ -3,11 +3,11 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Stars } from "@/components/stars"
-import { tours, formatPrice } from "@/lib/tours"
+import { formatPrice, type Tour } from "@/lib/tours"
 import { useCart } from "@/components/cart/cart-context"
 import { Check, Clock, MapPin } from "lucide-react"
 
-export function FeaturedTour() {
+export function FeaturedTour({ tours }: { tours: Tour[] }) {
   const { addItem, currency } = useCart()
   const tour = tours.find((t) => t.featured) ?? tours[0]
 

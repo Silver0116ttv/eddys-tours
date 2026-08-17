@@ -11,20 +11,23 @@ import { SiteHeader } from '@/components/site-header'
 import { Storytelling } from '@/components/storytelling'
 import { ToursStrip } from '@/components/tours-strip'
 import { WhyUs } from '@/components/why-us'
+import { getCatalogTours } from '@/lib/data/catalog'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const tours = await getCatalogTours()
+
   return (
     <>
       <SiteHeader />
       <CartDrawer />
       <main>
         <Hero />
-        <ToursStrip />
-        <PopularExperiences />
+        <ToursStrip tours={tours} />
+        <PopularExperiences tours={tours} />
         <CategorySection />
         <Storytelling />
         <DestinationsSection />
-        <FeaturedTour />
+        <FeaturedTour tours={tours} />
         <ReviewsSection />
         <WhyUs />
         <FinalCta />

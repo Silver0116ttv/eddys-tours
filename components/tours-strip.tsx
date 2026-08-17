@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useReducedMotion } from 'motion/react'
-import { tours, formatPrice } from '@/lib/tours'
+import { formatPrice, type Tour } from '@/lib/tours'
 import { useCart } from '@/components/cart/cart-context'
 import { cn } from '@/lib/utils'
 
-function StripCard({ tourId }: { tourId: string }) {
-  const tour = tours.find((t) => t.id === tourId)!
+function StripCard({ tour }: { tour: Tour }) {
   const { currency } = useCart()
   return (
     <a
@@ -39,7 +38,7 @@ function StripCard({ tourId }: { tourId: string }) {
   )
 }
 
-export function ToursStrip() {
+export function ToursStrip({ tours }: { tours: Tour[] }) {
   const reduce = useReducedMotion()
   const [interacted, setInteracted] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -98,7 +97,7 @@ export function ToursStrip() {
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-secondary/80 to-transparent" />
           <div className="flex w-max animate-marquee gap-3 px-3" style={{ ['--marquee-duration' as string]: '55s' }}>
             {items.map((t, i) => (
-              <StripCard key={`${t.id}-${i}`} tourId={t.id} />
+              <StripCard key={`${t.id}-${i}`} tour={t} />
             ))}
           </div>
         </div>
@@ -115,7 +114,7 @@ export function ToursStrip() {
           )}
         >
           {tours.map((t) => (
-            <StripCard key={t.id} tourId={t.id} />
+            <StripCard key={t.id} tour={t} />
           ))}
         </div>
       )}

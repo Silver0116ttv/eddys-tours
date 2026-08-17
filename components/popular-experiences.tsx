@@ -1,8 +1,8 @@
-import { tours } from '@/lib/tours'
+import type { Tour } from '@/lib/tours'
 import { SectionHeading } from '@/components/section-heading'
 import { TourCard } from '@/components/tour-card'
 
-export function PopularExperiences() {
+export function PopularExperiences({ tours }: { tours: Tour[] }) {
   const popular = tours.filter((t) => t.popular)
 
   return (
