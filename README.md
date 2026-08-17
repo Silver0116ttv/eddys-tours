@@ -4,7 +4,7 @@ Responsive tour marketplace prototype for Puerto Vallarta, built with Next.js, R
 
 ## Requirements
 
-- Node.js 22 or newer
+- Node.js 24
 - pnpm 11.19.0
 
 On Windows, if PowerShell does not recognize `pnpm`, install it with npm and then reopen the terminal:
