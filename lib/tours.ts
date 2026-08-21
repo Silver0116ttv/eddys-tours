@@ -8,6 +8,65 @@ export type TourCategory =
   | 'Wildlife'
   | 'Culture'
 
+export const TOUR_CATEGORIES: readonly TourCategory[] = [
+  'Adventure',
+  'Water',
+  'Boats',
+  'Nature',
+  'Family',
+  'Couples',
+  'Wildlife',
+  'Culture',
+]
+
+export function isTourCategory(value: string): value is TourCategory {
+  return (TOUR_CATEGORIES as readonly string[]).includes(value)
+}
+
+export type Currency = 'USD' | 'MXN'
+
+/**
+ * A single amount carried in both currencies we sell in. Keeping the pair
+ * together — instead of converting a USD total at display time — is what makes
+ * line items add up to the cart total in whichever currency is on screen.
+ */
+export interface Price {
+  usd: number
+  mxn: number
+}
+
+const USD_TO_MXN = 18
+
+/** Peso shelf price: converted, then rounded to the nearest 5 for a clean tag. */
+export function toMXN(usd: number): number {
+  return Math.round((usd * USD_TO_MXN) / 5) * 5
+}
+
+/** Build a price from USD, optionally with an operator-supplied peso price. */
+export function price(usd: number, mxn: number = toMXN(usd)): Price {
+  return { usd, mxn }
+}
+
+export function scalePrice({ usd, mxn }: Price, quantity: number): Price {
+  return { usd: usd * quantity, mxn: mxn * quantity }
+}
+
+export function sumPrices(prices: Price[]): Price {
+  return prices.reduce<Price>(
+    (total, item) => ({ usd: total.usd + item.usd, mxn: total.mxn + item.mxn }),
+    { usd: 0, mxn: 0 },
+  )
+}
+
+export function subtractPrice(a: Price, b: Price): Price {
+  return { usd: a.usd - b.usd, mxn: a.mxn - b.mxn }
+}
+
+export function formatPrice(value: Price, currency: Currency): string {
+  const amount = currency === 'MXN' ? value.mxn : value.usd
+  return `$${amount.toLocaleString('en-US')} ${currency}`
+}
+
 export interface Tour {
   id: string
   slug: string
@@ -21,10 +80,10 @@ export interface Tour {
   duration: string
   rating: number
   reviewsCount: number
-  retailPriceUSD: number
-  retailPriceMXN: number
-  providerPrice: number
-  depositAmount: number
+  /** Retail price per person. */
+  retailPrice: Price
+  /** Amount held per person when paying a deposit. */
+  deposit: Price
   availableDates: string[]
   availableTimes: string[]
   availableSpots: number
@@ -34,243 +93,6 @@ export interface Tour {
   requirements: string[]
   featured: boolean
   popular: boolean
-}
-
-const USD_TO_MXN = 18
-
-function mxn(usd: number) {
-  return Math.round((usd * USD_TO_MXN) / 5) * 5
-}
-
-export const tours: Tour[] = [
-  {
-    id: 'atv-sierra-madre',
-    slug: 'atv-sierra-madre',
-    title: 'ATV Sierra Madre',
-    providerName: 'Vallarta Off-Road Co.',
-    category: 'Adventure',
-    location: 'Puerto Vallarta',
-    images: ['/images/tour-atv.webp'],
-    shortDescription: 'Rip through jungle trails and river crossings in the Sierra Madre foothills.',
-    fullDescription:
-      'Grab the handlebars and chase muddy trails deep into the Sierra Madre. This guided ride climbs through tropical jungle, crosses shallow rivers, and stops at a scenic mountain lookout before heading back to the coast.',
-    duration: '4 hours',
-    rating: 4.9,
-    reviewsCount: 128,
-    retailPriceUSD: 89,
-    retailPriceMXN: mxn(89),
-    providerPrice: 62,
-    depositAmount: 30,
-    availableDates: ['2026-08-18', '2026-08-19', '2026-08-20', '2026-08-22'],
-    availableTimes: ['9:00 AM', '1:00 PM'],
-    availableSpots: 8,
-    meetingPoint: 'Marina Vallarta main dock',
-    includedItems: ['ATV & fuel', 'Certified guide', 'Helmet & goggles', 'Bottled water'],
-    excludedItems: ['Gratuities', 'Hotel pickup'],
-    requirements: ['Valid ID', 'Minimum age 16 to drive', 'Closed-toe shoes'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'marietas-islands',
-    slug: 'marietas-islands-adventure',
-    title: 'Marietas Islands Adventure',
-    providerName: 'Banderas Eco Cruises',
-    category: 'Water',
-    location: 'Islas Marietas',
-    images: ['/images/tour-marietas.webp'],
-    shortDescription: 'Snorkel, kayak and visit the famous Hidden Beach on a full-day expedition.',
-    fullDescription:
-      'A full-day expedition to the protected Marietas Islands. Snorkel over vibrant reefs, paddle a kayak into sea caves, and — conditions permitting — visit the legendary Hidden Beach tucked inside the island.',
-    duration: '8 hours',
-    rating: 4.8,
-    reviewsCount: 214,
-    retailPriceUSD: 109,
-    retailPriceMXN: mxn(109),
-    providerPrice: 78,
-    depositAmount: 40,
-    availableDates: ['2026-08-18', '2026-08-21', '2026-08-23'],
-    availableTimes: ['8:00 AM'],
-    availableSpots: 20,
-    meetingPoint: 'Punta Mita boat ramp',
-    includedItems: ['Boat transport', 'Snorkel gear', 'Kayak', 'Lunch & drinks', 'Guide'],
-    excludedItems: ['National park fee', 'Gratuities'],
-    requirements: ['Basic swimming ability', 'Sunscreen (reef-safe)'],
-    featured: true,
-    popular: true,
-  },
-  {
-    id: 'sunset-sailing',
-    slug: 'sunset-sailing-cruise',
-    title: 'Sunset Sailing Cruise',
-    providerName: 'Bahía Sail Club',
-    category: 'Boats',
-    location: 'Bay of Banderas',
-    images: ['/images/tour-sunset-sailing.webp'],
-    shortDescription: 'Glide across Banderas Bay as the Pacific lights up at golden hour.',
-    fullDescription:
-      'Set sail across Banderas Bay aboard a classic catamaran as the sun dips into the Pacific. Enjoy an open bar, canapés, and unbeatable views of the coastline glowing at golden hour.',
-    duration: '3 hours',
-    rating: 4.9,
-    reviewsCount: 176,
-    retailPriceUSD: 79,
-    retailPriceMXN: mxn(79),
-    providerPrice: 54,
-    depositAmount: 20,
-    availableDates: ['2026-08-18', '2026-08-19', '2026-08-20', '2026-08-22'],
-    availableTimes: ['5:00 PM'],
-    availableSpots: 30,
-    meetingPoint: 'Los Muertos Pier',
-    includedItems: ['Open bar', 'Canapés', 'Live music', 'Crew'],
-    excludedItems: ['Gratuities'],
-    requirements: ['Arrive 30 minutes early'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'los-arcos-snorkeling',
-    slug: 'los-arcos-snorkeling',
-    title: 'Los Arcos Snorkeling',
-    providerName: 'Blue Marlin Divers',
-    category: 'Water',
-    location: 'Puerto Vallarta',
-    images: ['/images/tour-snorkeling.webp'],
-    shortDescription: 'Swim among tropical fish beneath the dramatic arches of Los Arcos.',
-    fullDescription:
-      'Explore the Los Arcos marine sanctuary, a cluster of granite arches teeming with tropical marine life. Perfect for first-timers and families, with calm water and shallow reefs.',
-    duration: '3 hours',
-    rating: 4.7,
-    reviewsCount: 92,
-    retailPriceUSD: 65,
-    retailPriceMXN: mxn(65),
-    providerPrice: 44,
-    depositAmount: 20,
-    availableDates: ['2026-08-18', '2026-08-19', '2026-08-21'],
-    availableTimes: ['9:00 AM', '12:00 PM'],
-    availableSpots: 16,
-    meetingPoint: 'Boca de Tomatlán pier',
-    includedItems: ['Snorkel gear', 'Guide', 'Water & fruit'],
-    excludedItems: ['Wetsuit rental', 'Gratuities'],
-    requirements: ['Basic swimming ability'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'private-yacht',
-    slug: 'private-yacht-experience',
-    title: 'Private Yacht Experience',
-    providerName: 'Vallarta Yacht Charters',
-    category: 'Boats',
-    location: 'Nuevo Vallarta',
-    images: ['/images/tour-yacht.webp'],
-    shortDescription: 'Your own private yacht and crew for a day on the bay.',
-    fullDescription:
-      'Charter a private yacht with captain and crew for a fully customizable day on Banderas Bay. Anchor in secluded coves, swim, paddleboard, and cruise the coastline on your schedule.',
-    duration: '6 hours',
-    rating: 5.0,
-    reviewsCount: 41,
-    retailPriceUSD: 399,
-    retailPriceMXN: mxn(399),
-    providerPrice: 300,
-    depositAmount: 120,
-    availableDates: ['2026-08-19', '2026-08-20', '2026-08-24'],
-    availableTimes: ['10:00 AM'],
-    availableSpots: 10,
-    meetingPoint: 'Paradise Village Marina',
-    includedItems: ['Private yacht & crew', 'Fuel', 'Snorkel gear', 'Drinks & snacks'],
-    excludedItems: ['Catering upgrades', 'Gratuities'],
-    requirements: ['Booking confirmed 48h in advance'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'whale-watching',
-    slug: 'whale-watching',
-    title: 'Whale Watching',
-    providerName: 'Banderas Eco Cruises',
-    category: 'Wildlife',
-    location: 'Bay of Banderas',
-    images: ['/images/tour-whale.webp'],
-    shortDescription: 'Seasonal humpback whale watching with marine biologists aboard.',
-    fullDescription:
-      'From December to March, humpback whales fill Banderas Bay. Join our small-group boat with an onboard marine biologist for a respectful, unforgettable encounter with these giants.',
-    duration: '3.5 hours',
-    rating: 4.8,
-    reviewsCount: 153,
-    retailPriceUSD: 95,
-    retailPriceMXN: mxn(95),
-    providerPrice: 66,
-    depositAmount: 30,
-    availableDates: ['2026-08-18', '2026-08-20', '2026-08-23'],
-    availableTimes: ['8:30 AM', '11:30 AM'],
-    availableSpots: 18,
-    meetingPoint: 'Marina Vallarta dock 2',
-    includedItems: ['Boat & guide', 'Marine biologist', 'Water & snacks'],
-    excludedItems: ['Gratuities'],
-    requirements: ['Warm layer recommended'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'yelapa-day-trip',
-    slug: 'yelapa-day-trip',
-    title: 'Yelapa Day Trip',
-    providerName: 'South Bay Boats',
-    category: 'Nature',
-    location: 'Yelapa',
-    images: ['/images/tour-yelapa.webp'],
-    shortDescription: 'Boat to a car-free village, hike to a waterfall, and relax on the beach.',
-    fullDescription:
-      'Escape to Yelapa, a car-free fishing village reachable only by boat. Hike to a jungle waterfall, sample local pie on the beach, and soak up the slow pace of the southern bay.',
-    duration: '7 hours',
-    rating: 4.7,
-    reviewsCount: 88,
-    retailPriceUSD: 99,
-    retailPriceMXN: mxn(99),
-    providerPrice: 70,
-    depositAmount: 35,
-    availableDates: ['2026-08-19', '2026-08-21', '2026-08-22'],
-    availableTimes: ['9:00 AM'],
-    availableSpots: 24,
-    meetingPoint: 'Los Muertos Pier',
-    includedItems: ['Boat transport', 'Guide', 'Beach time', 'Waterfall hike'],
-    excludedItems: ['Lunch', 'Gratuities'],
-    requirements: ['Comfortable walking shoes'],
-    featured: false,
-    popular: true,
-  },
-  {
-    id: 'zipline-jungle',
-    slug: 'zipline-jungle-adventure',
-    title: 'Zipline Jungle Adventure',
-    providerName: 'Canopy River',
-    category: 'Adventure',
-    location: 'Puerto Vallarta',
-    images: ['/images/tour-zipline.webp'],
-    shortDescription: 'Fly across the jungle canopy on a network of high-speed ziplines.',
-    fullDescription:
-      'Soar over the treetops on a circuit of ziplines strung across a jungle river canyon. Combine your flights with rappelling and a mule ride for a full afternoon of adrenaline.',
-    duration: '5 hours',
-    rating: 4.8,
-    reviewsCount: 119,
-    retailPriceUSD: 85,
-    retailPriceMXN: mxn(85),
-    providerPrice: 58,
-    depositAmount: 30,
-    availableDates: ['2026-08-18', '2026-08-20', '2026-08-24'],
-    availableTimes: ['9:00 AM', '1:30 PM'],
-    availableSpots: 14,
-    meetingPoint: 'El Nogalito trailhead',
-    includedItems: ['All gear & harness', 'Guides', 'Transport from meeting point', 'Snack'],
-    excludedItems: ['Photos package', 'Gratuities'],
-    requirements: ['Max weight 120kg', 'Closed-toe shoes'],
-    featured: false,
-    popular: true,
-  },
-]
-
-export function getTourById(id: string) {
-  return tours.find((t) => t.id === id)
 }
 
 export interface CategoryItem {
@@ -357,7 +179,8 @@ export const reviews: Review[] = [
     customerName: 'Sarah',
     customerLocation: 'California, USA',
     rating: 5,
-    content: 'One of the highlights of our trip to Vallarta. The crew was wonderful and the sunset was unreal.',
+    content:
+      'One of the highlights of our trip to Vallarta. The crew was wonderful and the sunset was unreal.',
     verified: true,
     createdAt: '2026-07-28',
   },
@@ -401,7 +224,8 @@ export const reviews: Review[] = [
     customerName: 'Ana',
     customerLocation: 'Ciudad de México, MX',
     rating: 4,
-    content: 'Loved the village and the waterfall hike. A relaxing, authentic day away from the crowds.',
+    content:
+      'Loved the village and the waterfall hike. A relaxing, authentic day away from the crowds.',
     verified: true,
     createdAt: '2026-08-08',
   },
@@ -412,16 +236,9 @@ export const reviews: Review[] = [
     customerName: 'James',
     customerLocation: 'Austin, USA',
     rating: 5,
-    content: 'Worth every penny for our anniversary. Private, relaxed, and the crew took care of everything.',
+    content:
+      'Worth every penny for our anniversary. Private, relaxed, and the crew took care of everything.',
     verified: true,
     createdAt: '2026-08-11',
   },
 ]
-
-export function formatPrice(usd: number, currency: 'USD' | 'MXN', mxnValue?: number) {
-  if (currency === 'MXN') {
-    const value = mxnValue ?? Math.round(usd * USD_TO_MXN)
-    return `$${value.toLocaleString('en-US')} MXN`
-  }
-  return `$${usd.toLocaleString('en-US')} USD`
-}

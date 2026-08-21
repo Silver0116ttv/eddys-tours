@@ -1,5 +1,8 @@
+'use client'
+
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/components/use-i18n'
 
 interface StarsProps {
   rating: number
@@ -9,8 +12,13 @@ interface StarsProps {
 }
 
 export function Stars({ rating, className, size = 14, showValue = false }: StarsProps) {
+  const { t } = useI18n()
   return (
-    <span className={cn('inline-flex items-center gap-0.5', className)} aria-label={`${rating} out of 5 stars`}>
+    <span
+      role="img"
+      aria-label={t('stars.rating', { rating })}
+      className={cn('inline-flex items-center gap-0.5', className)}
+    >
       {Array.from({ length: 5 }).map((_, i) => {
         const filled = i < Math.round(rating)
         return (

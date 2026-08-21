@@ -6,7 +6,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Skip build output, generated metadata routes, and static assets: none of
+  // them need a Supabase session refresh, and running one costs a round trip.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|txt|xml)$).*)',
   ],
 }

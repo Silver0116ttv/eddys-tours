@@ -8,10 +8,12 @@ Tailwind CSS, and a Supabase-ready backend.
 - Node.js 24
 - pnpm 11.19.0
 
-On Windows, if PowerShell does not recognize `pnpm`, install it with npm and then reopen the terminal:
+Node 24 ships with Corepack, which installs the pnpm version pinned in
+`package.json`. If your shell does not recognize `pnpm`, enable it once and reopen the
+terminal:
 
-```powershell
-npx get-pnpm
+```bash
+corepack enable pnpm
 ```
 
 ## Local development

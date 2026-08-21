@@ -7,9 +7,13 @@ import { type Tour, formatPrice } from '@/lib/tours'
 import { useCart } from '@/components/cart/cart-context'
 import { Stars } from '@/components/stars'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/components/use-i18n'
+import { localizeCategory, localizeTour } from '@/lib/i18n'
 
 export function TourCard({ tour, className }: { tour: Tour; className?: string }) {
   const { addItem, currency } = useCart()
+  const { language, t } = useI18n()
+  const displayTour = localizeTour(tour, language)
   const [wished, setWished] = useState(false)
   const lowSpots = tour.availableSpots <= 10
 
@@ -22,20 +26,20 @@ export function TourCard({ tour, className }: { tour: Tour; className?: string }
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
-          src={tour.images[0]}
-          alt={tour.title}
+          src={tour.images[0] ?? '/placeholder.svg'}
+          alt={displayTour.title}
           fill
           sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 24vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <span className="rounded-full bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-charcoal backdrop-blur-sm">
-            {tour.category}
+            {localizeCategory(tour.category, language)}
           </span>
           <button
             type="button"
             onClick={() => setWished((w) => !w)}
-            aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-label={wished ? t('card.removeWishlist') : t('card.addWishlist')}
             aria-pressed={wished}
             className="grid size-8 place-items-center rounded-full bg-white/90 text-charcoal backdrop-blur-sm transition-colors hover:bg-white"
           >
@@ -43,8 +47,8 @@ export function TourCard({ tour, className }: { tour: Tour; className?: string }
           </button>
         </div>
         {lowSpots && (
-          <span className="absolute bottom-3 left-3 rounded-full bg-sunset px-2.5 py-1 text-[0.7rem] font-semibold text-white">
-            Only {tour.availableSpots} spots left
+          <span className="absolute bottom-3 left-3 rounded-full bg-sunset-deep px-2.5 py-1 text-[0.7rem] font-semibold text-white">
+            {t('card.spots', { count: tour.availableSpots })}
           </span>
         )}
       </div>
@@ -53,39 +57,39 @@ export function TourCard({ tour, className }: { tour: Tour; className?: string }
         <div className="mb-1.5 flex items-center gap-1.5 text-sm">
           <Stars rating={tour.rating} size={13} />
           <span className="font-semibold text-foreground">{tour.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">· {tour.reviewsCount} reviews</span>
+          <span className="text-muted-foreground">· {tour.reviewsCount} {t('common.reviews')}</span>
         </div>
 
         <h3 className="font-display text-base font-semibold leading-snug text-foreground">
-          {tour.title}
+          {displayTour.title}
         </h3>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Clock className="size-3.5" />
-            {tour.duration}
+            {displayTour.duration}
           </span>
           <span className="inline-flex items-center gap-1">
             <MapPin className="size-3.5" />
-            {tour.location}
+            {displayTour.location}
           </span>
         </div>
 
         <div className="mt-4 flex items-end justify-between border-t border-border pt-3">
           <div>
-            <span className="block text-[0.7rem] text-muted-foreground">From</span>
+            <span className="block text-[0.7rem] text-muted-foreground">{t('common.from')}</span>
             <span className="font-display text-lg font-bold text-foreground">
-              {formatPrice(tour.retailPriceUSD, currency, tour.retailPriceMXN)}
+              {formatPrice(tour.retailPrice, currency)}
             </span>
           </div>
           <button
             type="button"
             onClick={() => addItem(tour)}
-            aria-label={`Add ${tour.title} to your trip`}
+            aria-label={t('card.addTrip', { title: displayTour.title })}
             className="inline-flex items-center gap-1.5 rounded-full bg-ocean px-4 py-2 text-sm font-semibold text-white transition-transform hover:scale-[1.04] active:scale-95"
           >
             <Plus className="size-4" />
-            Add
+            {t('common.add')}
           </button>
         </div>
       </div>

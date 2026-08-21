@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { DatePicker } from '@/components/date-picker'
+import { useI18n } from '@/components/use-i18n'
 
 export function HeroSearch() {
   const [date, setDate] = useState<string>('')
   const [query, setQuery] = useState('')
+  const { t } = useI18n()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // Mock result behavior: scroll to the tours grid.
-    console.log('[v0] search', { date, query })
+    // No catalog filtering yet: the form scrolls to the grid it will filter.
     document.getElementById('tours')?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -23,10 +24,19 @@ export function HeroSearch() {
       <div className="flex flex-col gap-2 md:flex-row md:items-stretch">
         <div className="flex flex-1 items-center rounded-xl px-4 py-3 md:py-2 md:hover:bg-muted/60">
           <div className="w-full">
-            <span className="mb-0.5 block text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground">
-              When
+            <span
+              id="hero-search-when"
+              className="mb-0.5 block text-[0.7rem] font-semibold tracking-wide uppercase text-muted-foreground"
+            >
+              {t('search.when')}
             </span>
-            <DatePicker value={date} onChange={setDate} placeholder="Any date" buttonClassName="font-medium" />
+            <DatePicker
+              value={date}
+              onChange={setDate}
+              placeholder={t('search.anyDate')}
+              labelledBy="hero-search-when"
+              buttonClassName="font-medium"
+            />
           </div>
         </div>
 
@@ -38,14 +48,14 @@ export function HeroSearch() {
               htmlFor="hero-search"
               className="mb-0.5 block text-[0.7rem] font-semibold uppercase tracking-wide text-muted-foreground"
             >
-              What
+              {t('search.what')}
             </label>
             <input
               id="hero-search"
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ATV, yacht, snorkeling..."
+              placeholder={t('search.placeholder')}
               className="w-full bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
@@ -53,10 +63,10 @@ export function HeroSearch() {
 
         <button
           type="submit"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sunset px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95 md:px-7"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sunset-deep px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-95 md:px-7"
         >
           <Search className="size-4" />
-          Find Tours
+          {t('search.submit')}
         </button>
       </div>
     </form>

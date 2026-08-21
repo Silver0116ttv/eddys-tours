@@ -1,26 +1,37 @@
-import { Logo } from "@/components/logo"
-import { Camera, Globe, Mail, MessageCircle, Phone } from "lucide-react"
+'use client'
+
+import { Camera, Globe, Mail, MessageCircle, Phone } from 'lucide-react'
+import { Logo } from '@/components/logo'
+import { useI18n } from '@/components/use-i18n'
 
 const columns = [
   {
-    title: "Experiences",
-    links: ["Adventure", "Water & Snorkeling", "Boat Cruises", "Nature & Wildlife", "Family Trips"],
+    title: 'footer.experiences' as const,
+    links: [['Adventure', 'Aventura'], ['Water & Snorkeling', 'Agua y snorkel'], ['Boat Cruises', 'Paseos en barco'], ['Nature & Wildlife', 'Naturaleza y vida silvestre'], ['Family Trips', 'Viajes en familia']],
   },
   {
-    title: "Destinations",
-    links: ["Puerto Vallarta", "Nuevo Vallarta", "Sayulita", "Punta Mita", "Yelapa"],
+    title: 'footer.destinations' as const,
+    links: [['Puerto Vallarta', 'Puerto Vallarta'], ['Nuevo Vallarta', 'Nuevo Vallarta'], ['Sayulita', 'Sayulita'], ['Punta Mita', 'Punta Mita'], ['Yelapa', 'Yelapa']],
   },
   {
-    title: "Company",
-    links: ["About Eddy's", "Become a Partner", "Careers", "Press", "Blog"],
+    title: 'footer.company' as const,
+    links: [["About Eddy's", "Conoce a Eddy's"], ['Become a Partner', 'Sé nuestro socio'], ['Careers', 'Empleo'], ['Press', 'Prensa'], ['Blog', 'Blog']],
   },
   {
-    title: "Support",
-    links: ["Help Center", "Booking Policy", "Cancellations", "Contact Us", "Safety"],
+    title: 'footer.support' as const,
+    links: [['Help Center', 'Centro de ayuda'], ['Booking Policy', 'Políticas de reservación'], ['Cancellations', 'Cancelaciones'], ['Contact Us', 'Contáctanos'], ['Safety', 'Seguridad']],
   },
 ]
 
+/** Point each `href` at the live profile before launch. */
+const socialLinks = [
+  { label: 'Instagram', href: '#', icon: Camera },
+  { label: 'WhatsApp', href: '#', icon: MessageCircle },
+  { label: 'TripAdvisor', href: '#', icon: Globe },
+]
+
 export function SiteFooter() {
+  const { language, t } = useI18n()
   return (
     <footer id="footer" className="scroll-mt-24 border-t border-border bg-secondary">
       <div className="mx-auto max-w-[1440px] px-4 py-14 sm:px-6 lg:px-10">
@@ -28,34 +39,34 @@ export function SiteFooter() {
           <div className="max-w-xs">
             <Logo />
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Handpicked tours and experiences across Banderas Bay, booked with local people who
-              love this coast.
+              {t('footer.body')}
             </p>
-            <div className="mt-5 flex items-center gap-3">
-              {[Camera, MessageCircle, Globe].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="flex size-9 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Icon className="size-4" />
-                  <span className="sr-only">Social link</span>
-                </a>
+            <ul className="mt-5 flex items-center gap-3">
+              {socialLinks.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    className="flex size-9 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                  >
+                    <social.icon className="size-4" aria-hidden="true" />
+                    <span className="sr-only">{social.label}</span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.title}>
-              <h3 className="font-sans text-sm font-semibold text-foreground">{col.title}</h3>
+          {columns.map((column) => (
+            <div key={column.title}>
+              <h3 className="font-sans text-sm font-semibold text-foreground">{t(column.title)}</h3>
               <ul className="mt-4 space-y-3">
-                {col.links.map((link) => (
-                  <li key={link}>
+                {column.links.map(([englishLabel, spanishLabel]) => (
+                  <li key={englishLabel}>
                     <a
                       href="#"
                       className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                      {link}
+                      {language === 'ES' ? spanishLabel : englishLabel}
                     </a>
                   </li>
                 ))}
@@ -67,15 +78,18 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-col gap-4 border-t border-border pt-8 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
             <a href="tel:+523221234567" className="flex items-center gap-2 hover:text-foreground">
-              <Phone className="size-4" />
+              <Phone className="size-4" aria-hidden="true" />
               +52 322 123 4567
             </a>
-            <a href="mailto:hola@eddystours.mx" className="flex items-center gap-2 hover:text-foreground">
-              <Mail className="size-4" />
+            <a
+              href="mailto:hola@eddystours.mx"
+              className="flex items-center gap-2 hover:text-foreground"
+            >
+              <Mail className="size-4" aria-hidden="true" />
               hola@eddystours.mx
             </a>
           </div>
-          <p>© {new Date().getFullYear()} Eddy&apos;s Tours. Puerto Vallarta, Jalisco, México.</p>
+          <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
         </div>
       </div>
     </footer>

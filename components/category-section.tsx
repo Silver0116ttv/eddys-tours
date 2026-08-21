@@ -1,7 +1,11 @@
+'use client'
+
 import Image from 'next/image'
 import { categories, type CategoryItem } from '@/lib/tours'
 import { SectionHeading } from '@/components/section-heading'
 import { cn } from '@/lib/utils'
+import { useI18n } from '@/components/use-i18n'
+import { localizeCategory } from '@/lib/i18n'
 
 const spanBySize: Record<CategoryItem['size'], string> = {
   large: 'col-span-2 row-span-2',
@@ -11,6 +15,8 @@ const spanBySize: Record<CategoryItem['size'], string> = {
 }
 
 function CategoryCard({ category }: { category: CategoryItem }) {
+  const { language, t } = useI18n()
+  const name = localizeCategory(category.name, language)
   return (
     <a
       href="#tours"
@@ -21,7 +27,7 @@ function CategoryCard({ category }: { category: CategoryItem }) {
     >
       <Image
         src={category.image}
-        alt={`${category.name} experiences in Puerto Vallarta`}
+        alt={`${name} — Puerto Vallarta`}
         fill
         sizes="(max-width: 1024px) 50vw, 25vw"
         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -30,10 +36,10 @@ function CategoryCard({ category }: { category: CategoryItem }) {
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4">
         <div>
           <h3 className="font-display text-lg font-bold uppercase tracking-wide text-white sm:text-xl">
-            {category.name}
+            {name}
           </h3>
           <p className="mt-0.5 text-sm font-medium text-white/85">
-            {category.count} experiences
+            {category.count} {t('category.experiences')}
           </p>
         </div>
         <span
@@ -48,13 +54,14 @@ function CategoryCard({ category }: { category: CategoryItem }) {
 }
 
 export function CategorySection() {
+  const { t } = useI18n()
   return (
     <section id="categories" className="scroll-mt-24 bg-secondary/40 py-16 md:py-24">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <SectionHeading
-          eyebrow="Browse by vibe"
-          title="How do you want to explore?"
-          subtitle="From adrenaline in the jungle to slow days on the water — pick your kind of adventure."
+          eyebrow={t('category.eyebrow')}
+          title={t('category.title')}
+          subtitle={t('category.subtitle')}
         />
         <div className="mt-8 grid grid-flow-dense grid-cols-2 gap-3 [grid-auto-rows:150px] sm:[grid-auto-rows:190px] md:mt-10 md:gap-4 lg:grid-cols-4 lg:[grid-auto-rows:220px]">
           {categories.map((category) => (

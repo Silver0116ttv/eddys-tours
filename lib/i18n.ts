@@ -1,0 +1,335 @@
+import type { Language } from '@/lib/cart-store'
+import type { Review, Tour, TourCategory } from '@/lib/tours'
+
+const english = {
+  'skip.content': 'Skip to content',
+  'nav.primary': 'Primary navigation',
+  'nav.tours': 'Tours',
+  'nav.destinations': 'Destinations',
+  'nav.categories': 'Categories',
+  'nav.about': 'About',
+  'nav.contact': 'Contact',
+  'nav.explore': 'Explore Tours',
+  'header.home': "Eddy's Tours home",
+  'header.search': 'Search tours',
+  'header.language': 'Language',
+  'header.currency': 'Currency',
+  'header.openMenu': 'Open menu',
+  'header.closeMenu': 'Close menu',
+  'header.openTrip': 'Open your trip, {count} {items}',
+  'hero.alt': 'Aerial view of Banderas Bay with jungle coastline and a yacht near Puerto Vallarta at golden hour',
+  'hero.kicker': 'Puerto Vallarta, Mexico',
+  'hero.title': 'Find your next adventure.',
+  'hero.body': 'Discover unforgettable experiences across Puerto Vallarta and the Bay of Banderas.',
+  'hero.available': "See what's available",
+  'search.when': 'When',
+  'search.anyDate': 'Any date',
+  'search.what': 'What',
+  'search.placeholder': 'ATV, yacht, snorkeling...',
+  'search.submit': 'Find Tours',
+  'date.choose': 'Choose a date',
+  'date.previous': 'Previous month',
+  'date.next': 'Next month',
+  'date.confirm': 'Date to confirm',
+  'time.confirm': 'Time to confirm',
+  'strip.label': 'Tours quick browse',
+  'common.from': 'From',
+  'common.add': 'Add',
+  'common.person': 'person',
+  'common.reviews': 'reviews',
+  'popular.eyebrow': 'Book with confidence',
+  'popular.title': 'Popular Experiences',
+  'popular.subtitle': 'The adventures travelers are loving right now.',
+  'popular.all': 'View all',
+  'category.eyebrow': 'Browse by vibe',
+  'category.title': 'How do you want to explore?',
+  'category.subtitle': 'From adrenaline in the jungle to slow days on the water — pick your kind of adventure.',
+  'category.experiences': 'experiences',
+  'destination.eyebrow': 'Explore the region',
+  'destination.title': 'Destinations along the bay',
+  'destination.subtitle': 'From the cobblestones of old town to car-free villages you can only reach by boat.',
+  'featured.label': 'Featured trip',
+  'featured.add': 'Add to trip',
+  'card.addWishlist': 'Add to wishlist',
+  'card.removeWishlist': 'Remove from wishlist',
+  'card.spots': 'Only {count} spots left',
+  'card.addTrip': 'Add {title} to your trip',
+  'story.eyebrow': 'One coast, four worlds',
+  'story.title': 'More than a beach town',
+  'story.subtitle': "Puerto Vallarta packs an entire country into one stretch of coastline. Here's the land you'll be exploring.",
+  'reviews.eyebrow': 'Loved by travelers',
+  'reviews.title': '{rating} average from every verified trip',
+  'reviews.subtitle': 'Every review comes from a real, completed booking. No fakes, no filler.',
+  'reviews.verified': 'Verified',
+  'why.eyebrow': "Why Eddy's",
+  'why.title': 'A local team you can actually trust',
+  'why.body': "Eddy's Tours started as one guide with one boat. Today we connect travelers with the best operators across Banderas Bay — and we still treat every booking personally.",
+  'cta.alt': 'A palm-lined beach in Puerto Vallarta at golden hour',
+  'cta.title': 'Your Vallarta adventure starts here',
+  'cta.body': 'Join our list for local tips, seasonal experiences, and subscriber-only deals on the best tours in the bay.',
+  'cta.success': 'Thanks! Check your inbox to confirm your subscription.',
+  'cta.email': 'Email address',
+  'cta.submit': 'Get deals',
+  'footer.body': 'Handpicked tours and experiences across Banderas Bay, booked with local people who love this coast.',
+  'footer.experiences': 'Experiences',
+  'footer.destinations': 'Destinations',
+  'footer.company': 'Company',
+  'footer.support': 'Support',
+  'footer.copyright': "© {year} Eddy's Tours. Puerto Vallarta, Jalisco, Mexico.",
+  'cart.label': 'Your trip cart',
+  'cart.title': 'Your Trip',
+  'cart.close': 'Close cart',
+  'cart.requested': 'Booking requested!',
+  'cart.requestedBody': "Your spots are held. We've emailed your confirmation — a local guide will reach out with the final details.",
+  'cart.keepExploring': 'Keep exploring',
+  'cart.empty': 'Your trip is empty',
+  'cart.emptyBody': 'Add tours and experiences to start planning your Vallarta adventure.',
+  'cart.browse': 'Browse tours',
+  'cart.remove': 'Remove {title}',
+  'cart.fewer': 'Fewer travelers on {title}',
+  'cart.more': 'More travelers on {title}',
+  'cart.deposit': 'Deposit {price}',
+  'cart.full': 'Pay in full',
+  'cart.clear': 'Clear all',
+  'cart.total': 'Trip total',
+  'cart.balance': 'Balance due at the tour',
+  'cart.today': 'Pay today',
+  'cart.confirm': 'Confirm booking',
+  'cart.secure': 'Secure checkout · Free cancellation up to 48h before',
+  'stars.rating': 'Rated {rating} out of 5',
+} as const
+
+export type MessageKey = keyof typeof english
+
+const spanish: Record<MessageKey, string> = {
+  'skip.content': 'Saltar al contenido',
+  'nav.primary': 'Navegación principal',
+  'nav.tours': 'Tours',
+  'nav.destinations': 'Destinos',
+  'nav.categories': 'Categorías',
+  'nav.about': 'Nosotros',
+  'nav.contact': 'Contacto',
+  'nav.explore': 'Explorar tours',
+  'header.home': "Inicio de Eddy's Tours",
+  'header.search': 'Buscar tours',
+  'header.language': 'Idioma',
+  'header.currency': 'Moneda',
+  'header.openMenu': 'Abrir menú',
+  'header.closeMenu': 'Cerrar menú',
+  'header.openTrip': 'Abrir tu viaje, {count} {items}',
+  'hero.alt': 'Vista aérea de la Bahía de Banderas, la costa selvática y un yate cerca de Puerto Vallarta al atardecer',
+  'hero.kicker': 'Puerto Vallarta, México',
+  'hero.title': 'Encuentra tu próxima aventura.',
+  'hero.body': 'Descubre experiencias inolvidables en Puerto Vallarta y la Bahía de Banderas.',
+  'hero.available': 'Ver disponibilidad',
+  'search.when': 'Cuándo',
+  'search.anyDate': 'Cualquier fecha',
+  'search.what': 'Qué',
+  'search.placeholder': 'ATV, yate, snorkel...',
+  'search.submit': 'Buscar tours',
+  'date.choose': 'Elegir una fecha',
+  'date.previous': 'Mes anterior',
+  'date.next': 'Mes siguiente',
+  'date.confirm': 'Fecha por confirmar',
+  'time.confirm': 'Hora por confirmar',
+  'strip.label': 'Exploración rápida de tours',
+  'common.from': 'Desde',
+  'common.add': 'Agregar',
+  'common.person': 'persona',
+  'common.reviews': 'reseñas',
+  'popular.eyebrow': 'Reserva con confianza',
+  'popular.title': 'Experiencias populares',
+  'popular.subtitle': 'Las aventuras favoritas de nuestros viajeros.',
+  'popular.all': 'Ver todas',
+  'category.eyebrow': 'Explora a tu manera',
+  'category.title': '¿Cómo quieres explorar?',
+  'category.subtitle': 'Desde adrenalina en la selva hasta días tranquilos en el agua: elige tu aventura.',
+  'category.experiences': 'experiencias',
+  'destination.eyebrow': 'Explora la región',
+  'destination.title': 'Destinos alrededor de la bahía',
+  'destination.subtitle': 'Desde las calles empedradas del centro hasta pueblos sin autos a los que solo se llega en barco.',
+  'featured.label': 'Tour destacado',
+  'featured.add': 'Agregar al viaje',
+  'card.addWishlist': 'Agregar a favoritos',
+  'card.removeWishlist': 'Quitar de favoritos',
+  'card.spots': 'Solo quedan {count} lugares',
+  'card.addTrip': 'Agregar {title} a tu viaje',
+  'story.eyebrow': 'Una costa, cuatro mundos',
+  'story.title': 'Mucho más que playa',
+  'story.subtitle': 'Puerto Vallarta reúne un país entero en un tramo de costa. Esta es la tierra que vas a explorar.',
+  'reviews.eyebrow': 'Amado por los viajeros',
+  'reviews.title': '{rating} de promedio en viajes verificados',
+  'reviews.subtitle': 'Cada reseña proviene de una reservación real y completada. Sin reseñas falsas ni relleno.',
+  'reviews.verified': 'Verificada',
+  'why.eyebrow': "Por qué Eddy's",
+  'why.title': 'Un equipo local en el que sí puedes confiar',
+  'why.body': "Eddy's Tours comenzó con un guía y una embarcación. Hoy conectamos viajeros con los mejores operadores de la Bahía de Banderas y seguimos atendiendo cada reservación personalmente.",
+  'cta.alt': 'Playa rodeada de palmeras en Puerto Vallarta al atardecer',
+  'cta.title': 'Tu aventura en Vallarta empieza aquí',
+  'cta.body': 'Únete para recibir consejos locales, experiencias de temporada y ofertas exclusivas en los mejores tours de la bahía.',
+  'cta.success': '¡Gracias! Revisa tu correo para confirmar tu suscripción.',
+  'cta.email': 'Correo electrónico',
+  'cta.submit': 'Recibir ofertas',
+  'footer.body': 'Tours y experiencias seleccionados en la Bahía de Banderas, reservados con gente local que ama esta costa.',
+  'footer.experiences': 'Experiencias',
+  'footer.destinations': 'Destinos',
+  'footer.company': 'Empresa',
+  'footer.support': 'Ayuda',
+  'footer.copyright': "© {year} Eddy's Tours. Puerto Vallarta, Jalisco, México.",
+  'cart.label': 'Carrito de tu viaje',
+  'cart.title': 'Tu viaje',
+  'cart.close': 'Cerrar carrito',
+  'cart.requested': '¡Reservación solicitada!',
+  'cart.requestedBody': 'Tus lugares están apartados. Te enviamos la confirmación por correo y un guía local se pondrá en contacto con los detalles finales.',
+  'cart.keepExploring': 'Seguir explorando',
+  'cart.empty': 'Tu viaje está vacío',
+  'cart.emptyBody': 'Agrega tours y experiencias para comenzar a planear tu aventura en Vallarta.',
+  'cart.browse': 'Explorar tours',
+  'cart.remove': 'Quitar {title}',
+  'cart.fewer': 'Menos viajeros en {title}',
+  'cart.more': 'Más viajeros en {title}',
+  'cart.deposit': 'Depósito {price}',
+  'cart.full': 'Pagar completo',
+  'cart.clear': 'Vaciar carrito',
+  'cart.total': 'Total del viaje',
+  'cart.balance': 'Saldo a pagar el día del tour',
+  'cart.today': 'Pagar hoy',
+  'cart.confirm': 'Confirmar reservación',
+  'cart.secure': 'Pago seguro · Cancelación gratuita hasta 48 h antes',
+  'stars.rating': 'Calificación: {rating} de 5',
+}
+
+export function localeFor(language: Language) {
+  return language === 'ES' ? 'es-MX' : 'en-US'
+}
+
+export function translate(
+  language: Language,
+  key: MessageKey,
+  values: Record<string, string | number> = {},
+) {
+  const template = language === 'ES' ? spanish[key] : english[key]
+  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? `{${name}}`))
+}
+
+const categoryES: Record<TourCategory, string> = {
+  Adventure: 'Aventura',
+  Water: 'Agua',
+  Boats: 'Barcos',
+  Nature: 'Naturaleza',
+  Family: 'Familia',
+  Couples: 'Parejas',
+  Wildlife: 'Vida silvestre',
+  Culture: 'Cultura',
+}
+
+const destinationDescriptionsES: Record<string, string> = {
+  'puerto-vallarta-tours': 'Centro empedrado, el Malecón y el corazón de la bahía.',
+  'nuevo-vallarta-tours': 'Amplias playas doradas, marinas y días perfectos en familia.',
+  'sayulita-tours': 'Surf, selva y el encanto de un pueblo costero.',
+  'punta-mita-tours': 'Olas exclusivas y agua color turquesa.',
+  'yelapa-tours': 'Un pueblo sin autos, cascadas y caletas tranquilas.',
+  'san-sebastian-tours': 'Un histórico pueblo minero en lo alto de la Sierra Madre.',
+}
+
+export function localizeCategory(category: TourCategory, language: Language) {
+  return language === 'ES' ? categoryES[category] : category
+}
+
+export function localizeDestinationDescription(slug: string, description: string, language: Language) {
+  return language === 'ES' ? destinationDescriptionsES[slug] ?? description : description
+}
+
+type TourCopy = Pick<
+  Tour,
+  | 'title'
+  | 'shortDescription'
+  | 'fullDescription'
+  | 'duration'
+  | 'meetingPoint'
+  | 'includedItems'
+  | 'excludedItems'
+  | 'requirements'
+>
+
+const tourES: Record<string, TourCopy> = {
+  'atv-sierra-madre': {
+    title: 'ATV Sierra Madre',
+    shortDescription: 'Recorre senderos selváticos y cruza ríos al pie de la Sierra Madre.',
+    fullDescription: 'Toma el manubrio y adéntrate por caminos de tierra en la Sierra Madre. Este recorrido guiado sube por la selva tropical, cruza ríos poco profundos y se detiene en un mirador antes de volver a la costa.',
+    duration: '4 horas', meetingPoint: 'Muelle principal de Marina Vallarta',
+    includedItems: ['ATV y combustible', 'Guía certificado', 'Casco y goggles', 'Agua embotellada'],
+    excludedItems: ['Propinas', 'Traslado desde el hotel'], requirements: ['Identificación vigente', 'Edad mínima de 16 años para conducir', 'Calzado cerrado'],
+  },
+  'marietas-islands': {
+    title: 'Aventura en Islas Marietas',
+    shortDescription: 'Haz snorkel, navega en kayak y visita la famosa Playa Escondida.',
+    fullDescription: 'Una expedición de día completo a las protegidas Islas Marietas. Haz snorkel sobre arrecifes llenos de vida, rema en kayak por cuevas marinas y, si las condiciones lo permiten, visita la legendaria Playa Escondida.',
+    duration: '8 horas', meetingPoint: 'Rampa de embarcaciones de Punta Mita',
+    includedItems: ['Transporte en barco', 'Equipo de snorkel', 'Kayak', 'Comida y bebidas', 'Guía'],
+    excludedItems: ['Tarifa del parque nacional', 'Propinas'], requirements: ['Saber nadar', 'Protector solar biodegradable'],
+  },
+  'sunset-sailing': {
+    title: 'Paseo en velero al atardecer', shortDescription: 'Navega por la Bahía de Banderas mientras el Pacífico se ilumina al atardecer.',
+    fullDescription: 'Navega por la Bahía de Banderas en un catamarán clásico mientras el sol cae sobre el Pacífico. Disfruta barra libre, canapés y vistas inolvidables de la costa durante la hora dorada.',
+    duration: '3 horas', meetingPoint: 'Muelle de Los Muertos', includedItems: ['Barra libre', 'Canapés', 'Música en vivo', 'Tripulación'], excludedItems: ['Propinas'], requirements: ['Llegar 30 minutos antes'],
+  },
+  'los-arcos-snorkeling': {
+    title: 'Snorkel en Los Arcos', shortDescription: 'Nada entre peces tropicales bajo los impresionantes arcos de piedra.',
+    fullDescription: 'Explora el santuario marino de Los Arcos, un conjunto de formaciones de granito lleno de vida tropical. Ideal para principiantes y familias, con aguas tranquilas y arrecifes poco profundos.',
+    duration: '3 horas', meetingPoint: 'Muelle de Boca de Tomatlán', includedItems: ['Equipo de snorkel', 'Guía', 'Agua y fruta'], excludedItems: ['Renta de traje de neopreno', 'Propinas'], requirements: ['Saber nadar'],
+  },
+  'private-yacht': {
+    title: 'Experiencia en yate privado', shortDescription: 'Tu propio yate con tripulación para disfrutar un día en la bahía.',
+    fullDescription: 'Renta un yate privado con capitán y tripulación para vivir un día totalmente personalizado en la Bahía de Banderas. Fondea en caletas apartadas, nada, usa el paddleboard y recorre la costa a tu ritmo.',
+    duration: '6 horas', meetingPoint: 'Marina de Paradise Village', includedItems: ['Yate privado y tripulación', 'Combustible', 'Equipo de snorkel', 'Bebidas y snacks'], excludedItems: ['Mejoras de catering', 'Propinas'], requirements: ['Confirmar con 48 h de anticipación'],
+  },
+  'whale-watching': {
+    title: 'Avistamiento de ballenas', shortDescription: 'Observa ballenas jorobadas en temporada acompañado por biólogos marinos.',
+    fullDescription: 'De diciembre a marzo, las ballenas jorobadas llegan a la Bahía de Banderas. Únete a un grupo pequeño con un biólogo marino a bordo para vivir un encuentro respetuoso e inolvidable con estos gigantes.',
+    duration: '3.5 horas', meetingPoint: 'Muelle 2 de Marina Vallarta', includedItems: ['Embarcación y guía', 'Biólogo marino', 'Agua y snacks'], excludedItems: ['Propinas'], requirements: ['Se recomienda llevar una prenda abrigadora'],
+  },
+  'yelapa-day-trip': {
+    title: 'Excursión de un día a Yelapa', shortDescription: 'Viaja en barco a un pueblo sin autos, camina a una cascada y relájate en la playa.',
+    fullDescription: 'Escápate a Yelapa, un pueblo pesquero sin autos al que solo se llega en barco. Camina hacia una cascada en la selva, prueba el famoso pay local y disfruta el ritmo tranquilo del sur de la bahía.',
+    duration: '7 horas', meetingPoint: 'Muelle de Los Muertos', includedItems: ['Transporte en barco', 'Guía', 'Tiempo en la playa', 'Caminata a la cascada'], excludedItems: ['Comida', 'Propinas'], requirements: ['Calzado cómodo para caminar'],
+  },
+  'zipline-jungle': {
+    title: 'Aventura de tirolesa en la selva', shortDescription: 'Vuela sobre la selva en un circuito de tirolesas de alta velocidad.',
+    fullDescription: 'Vuela sobre las copas de los árboles en un circuito de tirolesas que cruza un cañón selvático. Combina el recorrido con rappel y un paseo en mula para una tarde llena de adrenalina.',
+    duration: '5 horas', meetingPoint: 'Inicio del sendero El Nogalito', includedItems: ['Equipo y arnés', 'Guías', 'Transporte desde el punto de encuentro', 'Snack'], excludedItems: ['Paquete de fotos', 'Propinas'], requirements: ['Peso máximo de 120 kg', 'Calzado cerrado'],
+  },
+}
+
+const locationES: Record<string, string> = {
+  'Bay of Banderas': 'Bahía de Banderas',
+}
+
+export function localizeTour(tour: Tour, language: Language): Tour {
+  if (language !== 'ES') return tour
+  const copy = tourES[tour.id]
+
+  return {
+    ...tour,
+    ...(copy ?? {}),
+    category: tour.category,
+    location: locationES[tour.location] ?? tour.location,
+  }
+}
+
+export function localizeTourTitle(tourId: string, fallback: string, language: Language) {
+  return language === 'ES' ? tourES[tourId]?.title ?? fallback : fallback
+}
+
+const reviewES: Record<string, string> = {
+  r1: 'Uno de los mejores momentos de nuestro viaje a Vallarta. La tripulación fue increíble y el atardecer, espectacular.',
+  r2: 'Muy divertido y los senderos eran hermosos. Nuestro guía se aseguró de que todos nos sintiéramos seguros.',
+  r3: 'Reservar fue muy fácil y el día estuvo perfectamente organizado. El snorkel fue increíble.',
+  r4: 'Vimos varias ballenas jorobadas muy cerca. El biólogo marino a bordo fue fantástico.',
+  r5: 'Nos encantaron el pueblo y la caminata a la cascada. Un día relajado y auténtico lejos de las multitudes.',
+  r6: 'Valió cada peso para nuestro aniversario. Privado, relajado y la tripulación se encargó de todo.',
+}
+
+export function localizeReview(review: Review, language: Language): Review {
+  return language === 'ES' ? { ...review, content: reviewES[review.id] ?? review.content } : review
+}

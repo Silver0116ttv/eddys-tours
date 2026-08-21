@@ -1,4 +1,5 @@
--- Reproducible demo catalog. Replace these departures with live operator inventory before checkout.
+-- Reproducible demo catalog, safe to re-run. Departures are generated relative to
+-- today; replace them with live operator inventory before enabling checkout.
 
 insert into public.operators (name, slug, status)
 values
@@ -218,38 +219,44 @@ join public.tour_options option on option.tour_id = t.id and option.name = 'Stan
 on conflict (tour_option_id, currency, effective_from) do update
 set provider_cost_minor = excluded.provider_cost_minor;
 
+-- Departures are seeded relative to the day the seed runs, so the demo catalog
+-- always shows upcoming availability instead of expiring on a fixed date.
 insert into public.departures (tour_id, starts_at, capacity)
-select t.id, schedule.starts_at::timestamptz, schedule.capacity
+select
+  t.id,
+  (((now() at time zone 'America/Mexico_City')::date + schedule.day_offset) + schedule.local_time)
+    at time zone 'America/Mexico_City',
+  schedule.capacity
 from (values
-  ('atv-sierra-madre', '2026-08-18 09:00:00-06', 8),
-  ('atv-sierra-madre', '2026-08-18 13:00:00-06', 8),
-  ('atv-sierra-madre', '2026-08-19 09:00:00-06', 8),
-  ('atv-sierra-madre', '2026-08-20 13:00:00-06', 8),
-  ('atv-sierra-madre', '2026-08-22 09:00:00-06', 8),
-  ('marietas-islands-adventure', '2026-08-18 08:00:00-06', 20),
-  ('marietas-islands-adventure', '2026-08-21 08:00:00-06', 20),
-  ('marietas-islands-adventure', '2026-08-23 08:00:00-06', 20),
-  ('sunset-sailing-cruise', '2026-08-18 17:00:00-06', 30),
-  ('sunset-sailing-cruise', '2026-08-19 17:00:00-06', 30),
-  ('sunset-sailing-cruise', '2026-08-20 17:00:00-06', 30),
-  ('sunset-sailing-cruise', '2026-08-22 17:00:00-06', 30),
-  ('los-arcos-snorkeling', '2026-08-18 09:00:00-06', 16),
-  ('los-arcos-snorkeling', '2026-08-18 12:00:00-06', 16),
-  ('los-arcos-snorkeling', '2026-08-19 09:00:00-06', 16),
-  ('los-arcos-snorkeling', '2026-08-21 12:00:00-06', 16),
-  ('private-yacht-experience', '2026-08-19 10:00:00-06', 10),
-  ('private-yacht-experience', '2026-08-20 10:00:00-06', 10),
-  ('private-yacht-experience', '2026-08-24 10:00:00-06', 10),
-  ('whale-watching', '2026-08-18 08:30:00-06', 18),
-  ('whale-watching', '2026-08-20 11:30:00-06', 18),
-  ('whale-watching', '2026-08-23 08:30:00-06', 18),
-  ('yelapa-day-trip', '2026-08-19 09:00:00-06', 24),
-  ('yelapa-day-trip', '2026-08-21 09:00:00-06', 24),
-  ('yelapa-day-trip', '2026-08-22 09:00:00-06', 24),
-  ('zipline-jungle-adventure', '2026-08-18 09:00:00-06', 14),
-  ('zipline-jungle-adventure', '2026-08-20 13:30:00-06', 14),
-  ('zipline-jungle-adventure', '2026-08-24 09:00:00-06', 14)
-) as schedule(slug, starts_at, capacity)
+  ('atv-sierra-madre', 1, time '09:00', 8),
+  ('atv-sierra-madre', 1, time '13:00', 8),
+  ('atv-sierra-madre', 2, time '09:00', 8),
+  ('atv-sierra-madre', 3, time '13:00', 8),
+  ('atv-sierra-madre', 5, time '09:00', 8),
+  ('marietas-islands-adventure', 1, time '08:00', 20),
+  ('marietas-islands-adventure', 4, time '08:00', 20),
+  ('marietas-islands-adventure', 6, time '08:00', 20),
+  ('sunset-sailing-cruise', 1, time '17:00', 30),
+  ('sunset-sailing-cruise', 2, time '17:00', 30),
+  ('sunset-sailing-cruise', 3, time '17:00', 30),
+  ('sunset-sailing-cruise', 5, time '17:00', 30),
+  ('los-arcos-snorkeling', 1, time '09:00', 16),
+  ('los-arcos-snorkeling', 1, time '12:00', 16),
+  ('los-arcos-snorkeling', 2, time '09:00', 16),
+  ('los-arcos-snorkeling', 4, time '12:00', 16),
+  ('private-yacht-experience', 2, time '10:00', 10),
+  ('private-yacht-experience', 3, time '10:00', 10),
+  ('private-yacht-experience', 7, time '10:00', 10),
+  ('whale-watching', 1, time '08:30', 18),
+  ('whale-watching', 3, time '11:30', 18),
+  ('whale-watching', 6, time '08:30', 18),
+  ('yelapa-day-trip', 2, time '09:00', 24),
+  ('yelapa-day-trip', 4, time '09:00', 24),
+  ('yelapa-day-trip', 5, time '09:00', 24),
+  ('zipline-jungle-adventure', 1, time '09:00', 14),
+  ('zipline-jungle-adventure', 3, time '13:30', 14),
+  ('zipline-jungle-adventure', 7, time '09:00', 14)
+) as schedule(slug, day_offset, local_time, capacity)
 join public.tours t on t.slug = schedule.slug
 on conflict (tour_id, starts_at) do update
 set capacity = excluded.capacity, status = 'scheduled';

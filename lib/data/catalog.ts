@@ -1,7 +1,9 @@
 import 'server-only'
 
 import { unstable_cache } from 'next/cache'
-import { tours as fallbackTours, type Tour, type TourCategory } from '@/lib/tours'
+import { isTourCategory, price, toMXN, type Tour } from '@/lib/tours'
+import { toVallartaDate, toVallartaTime } from '@/lib/time'
+import { getFallbackTours } from '@/lib/data/fallback-catalog'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { createPublicClient } from '@/lib/supabase/public'
 import type {
@@ -12,48 +14,19 @@ import type {
   TourRow,
 } from '@/lib/supabase/database.types'
 
-const TOUR_CATEGORIES: TourCategory[] = [
-  'Adventure',
-  'Water',
-  'Boats',
-  'Nature',
-  'Family',
-  'Couples',
-  'Wildlife',
-  'Culture',
-]
+/** How long a cached catalog read stays fresh. Mirrored by the home page's `revalidate`. */
+export const CATALOG_REVALIDATE_SECONDS = 300
 
-function isTourCategory(value: string): value is TourCategory {
-  return TOUR_CATEGORIES.includes(value as TourCategory)
-}
+const PLACEHOLDER_IMAGE = '/placeholder.svg'
 
 function formatDuration(minutes: number) {
   const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
+  const remainder = minutes % 60
 
-  if (!remainingMinutes) return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
-  return `${hours}.${Math.round((remainingMinutes / 60) * 10)} hours`
-}
-
-function dateInVallarta(value: string) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    day: '2-digit',
-    month: '2-digit',
-    timeZone: 'America/Mexico_City',
-    year: 'numeric',
-  }).formatToParts(new Date(value))
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((item) => item.type === type)?.value ?? ''
-
-  return `${part('year')}-${part('month')}-${part('day')}`
-}
-
-function timeInVallarta(value: string) {
-  return new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'America/Mexico_City',
-  }).format(new Date(value))
+  if (hours === 0) return `${minutes} minutes`
+  if (remainder === 0) return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
+  if (remainder === 30) return `${hours}.5 hours`
+  return `${hours}h ${remainder}m`
 }
 
 async function fetchCatalogFromSupabase(): Promise<Tour[]> {
@@ -104,8 +77,7 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
 
     if (!option || !operator || !isTourCategory(row.category)) return []
 
-    const availableDates = [...new Set(tourDepartures.map((item) => dateInVallarta(item.starts_at)))]
-    const availableTimes = [...new Set(tourDepartures.map((item) => timeInVallarta(item.starts_at)))]
+    const depositUSD = option.deposit_usd_minor / 100
 
     return [
       {
@@ -115,18 +87,25 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
         providerName: operator.name,
         category: row.category,
         location: row.location,
-        images: images.length ? images : ['/placeholder.svg'],
+        images: images.length ? images : [PLACEHOLDER_IMAGE],
         shortDescription: row.short_description,
         fullDescription: row.full_description,
         duration: formatDuration(row.duration_minutes),
         rating: Number(row.rating_average),
         reviewsCount: row.reviews_count,
-        retailPriceUSD: option.retail_price_usd_minor / 100,
-        retailPriceMXN: option.retail_price_mxn_minor / 100,
-        providerPrice: 0,
-        depositAmount: option.deposit_usd_minor / 100,
-        availableDates,
-        availableTimes,
+        retailPrice: price(
+          option.retail_price_usd_minor / 100,
+          option.retail_price_mxn_minor / 100,
+        ),
+        // Operators quote deposits in USD only, so the peso figure is derived
+        // with the same rounding the retail shelf price uses.
+        deposit: price(depositUSD, toMXN(depositUSD)),
+        availableDates: [
+          ...new Set(tourDepartures.map((item) => toVallartaDate(item.starts_at))),
+        ],
+        availableTimes: [
+          ...new Set(tourDepartures.map((item) => toVallartaTime(item.starts_at))),
+        ],
         availableSpots: tourDepartures.length
           ? Math.min(...tourDepartures.map((item) => item.capacity))
           : option.max_participants,
@@ -142,18 +121,18 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
 }
 
 const getCachedSupabaseCatalog = unstable_cache(fetchCatalogFromSupabase, ['tour-catalog'], {
-  revalidate: 300,
+  revalidate: CATALOG_REVALIDATE_SECONDS,
   tags: ['tour-catalog'],
 })
 
 export async function getCatalogTours(): Promise<Tour[]> {
-  if (!isSupabaseConfigured()) return fallbackTours
+  if (!isSupabaseConfigured()) return getFallbackTours()
 
   try {
     const catalog = await getCachedSupabaseCatalog()
-    return catalog.length ? catalog : fallbackTours
+    return catalog.length ? catalog : getFallbackTours()
   } catch (error) {
     console.error('Supabase catalog unavailable; using the bundled catalog.', error)
-    return fallbackTours
+    return getFallbackTours()
   }
 }

@@ -1,18 +1,22 @@
+'use client'
+
 import type { Tour } from '@/lib/tours'
 import { SectionHeading } from '@/components/section-heading'
 import { TourCard } from '@/components/tour-card'
+import { useI18n } from '@/components/use-i18n'
 
 export function PopularExperiences({ tours }: { tours: Tour[] }) {
+  const { t } = useI18n()
   const popular = tours.filter((t) => t.popular)
 
   return (
     <section id="tours" className="scroll-mt-24 py-16 md:py-24">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <SectionHeading
-          eyebrow="Book with confidence"
-          title="Popular Experiences"
-          subtitle="The adventures travelers are loving right now."
-          action={{ label: 'View all', href: '#categories' }}
+          eyebrow={t('popular.eyebrow')}
+          title={t('popular.title')}
+          subtitle={t('popular.subtitle')}
+          action={{ label: t('popular.all'), href: '#categories' }}
         />
 
         <div

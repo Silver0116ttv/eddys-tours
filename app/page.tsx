@@ -13,6 +13,13 @@ import { ToursStrip } from '@/components/tours-strip'
 import { WhyUs } from '@/components/why-us'
 import { getCatalogTours } from '@/lib/data/catalog'
 
+/**
+ * Prerendered at build time and refreshed in the background, so a catalog edit
+ * in Supabase reaches visitors without a redeploy. Next requires a literal
+ * here; keep it in step with `CATALOG_REVALIDATE_SECONDS` in lib/data/catalog.
+ */
+export const revalidate = 300
+
 export default async function HomePage() {
   const tours = await getCatalogTours()
 
@@ -20,7 +27,7 @@ export default async function HomePage() {
     <>
       <SiteHeader />
       <CartDrawer />
-      <main>
+      <main id="main">
         <Hero />
         <ToursStrip tours={tours} />
         <PopularExperiences tours={tours} />
@@ -28,7 +35,7 @@ export default async function HomePage() {
         <Storytelling />
         <DestinationsSection />
         <FeaturedTour tours={tours} />
-        <ReviewsSection />
+        <ReviewsSection tours={tours} />
         <WhyUs />
         <FinalCta />
       </main>

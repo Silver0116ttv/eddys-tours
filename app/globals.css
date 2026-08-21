@@ -1,11 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/*
+ * The storefront is deliberately light-only (see `color-scheme` below). This
+ * custom variant re-points `dark:` at an opt-in `.dark` ancestor that the app
+ * never renders, so the `dark:` classes shipped inside generated UI components
+ * stay dormant instead of firing on the visitor's OS preference.
+ */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
@@ -31,6 +36,7 @@
   --color-ocean: var(--ocean);
   --color-ocean-deep: var(--ocean-deep);
   --color-sunset: var(--sunset);
+  --color-sunset-deep: var(--sunset-deep);
   --color-jungle: var(--jungle);
   --color-tropical: var(--tropical);
   --color-turquoise: var(--turquoise);
@@ -48,15 +54,31 @@
   color-scheme: light;
   --radius: 0.75rem;
 
+  /*
+   * Brand palette — the single source of truth. The semantic slots below are
+   * aliases onto these, so a brand tweak never has to be made in two places.
+   */
+  --ocean: oklch(0.52 0.115 236);
+  --ocean-deep: oklch(0.35 0.09 245);
+  /* Decorative accent: stars, hearts, highlights. Too light to sit under white text. */
+  --sunset: oklch(0.7 0.17 44);
+  /* Interactive accent: solid surfaces that carry white text (4.9:1 against white). */
+  --sunset-deep: oklch(0.56 0.17 44);
+  --jungle: oklch(0.42 0.09 150);
+  --tropical: oklch(0.62 0.13 155);
+  --turquoise: oklch(0.72 0.11 195);
+  --sand: oklch(0.92 0.03 82);
+  --charcoal: oklch(0.24 0.02 250);
+
   --background: oklch(0.985 0.006 90);
-  --foreground: oklch(0.24 0.02 250);
+  --foreground: var(--charcoal);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.02 250);
+  --card-foreground: var(--charcoal);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.24 0.02 250);
+  --popover-foreground: var(--charcoal);
 
-  --primary: oklch(0.52 0.115 236);
+  --primary: var(--ocean);
   --primary-foreground: oklch(0.99 0.005 90);
 
   --secondary: oklch(0.94 0.022 82);
@@ -65,24 +87,14 @@
   --muted: oklch(0.955 0.01 88);
   --muted-foreground: oklch(0.52 0.02 250);
 
-  --accent: oklch(0.7 0.17 44);
+  --accent: var(--sunset);
   --accent-foreground: oklch(0.99 0.01 80);
 
   --destructive: oklch(0.58 0.22 27);
 
   --border: oklch(0.9 0.012 85);
   --input: oklch(0.9 0.012 85);
-  --ring: oklch(0.52 0.115 236);
-
-  /* Tropical palette */
-  --ocean: oklch(0.52 0.115 236);
-  --ocean-deep: oklch(0.35 0.09 245);
-  --sunset: oklch(0.7 0.17 44);
-  --jungle: oklch(0.42 0.09 150);
-  --tropical: oklch(0.62 0.13 155);
-  --turquoise: oklch(0.72 0.11 195);
-  --sand: oklch(0.92 0.03 82);
-  --charcoal: oklch(0.24 0.02 250);
+  --ring: var(--ocean);
 }
 
 @layer base {
@@ -103,13 +115,12 @@
   }
 }
 
-@layer utilities {
-  .font-display {
-    font-family: var(--font-sans);
-  }
+/* Display face for headings and brand lockups. */
+@utility font-display {
+  font-family: var(--font-sans);
 }
 
-/* Seamless marquee for the auto-moving tours strip */
+/* Seamless marquee for the auto-moving tours strip. */
 @keyframes marquee-x {
   from {
     transform: translateX(0);
@@ -118,21 +129,21 @@
     transform: translateX(-50%);
   }
 }
-.animate-marquee {
-  animation: marquee-x var(--marquee-duration, 60s) linear infinite;
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation: none !important;
+@utility animate-marquee {
+  animation: marquee-x var(--marquee-duration, 60s) linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 
-/* Hide scrollbar for draggable strips */
-.no-scrollbar {
+/* Hide the scrollbar on drag-to-scroll strips. */
+@utility no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
