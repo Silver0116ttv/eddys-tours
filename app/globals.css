@@ -101,6 +101,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* Keep native anchors and hash history while turning section changes into a journey. */
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
@@ -112,6 +116,12 @@
   h5,
   h6 {
     font-family: var(--font-sans);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
