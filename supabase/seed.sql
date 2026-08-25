@@ -180,27 +180,126 @@ set url = excluded.url, alt_text = excluded.alt_text;
 
 insert into public.tour_options (
   tour_id, name, retail_price_usd_minor, retail_price_mxn_minor,
-  deposit_usd_minor, max_participants
+  deposit_usd_minor, deposit_mxn_minor, max_participants
 )
 select t.id, 'Standard', pricing.usd_minor, pricing.mxn_minor,
-  pricing.deposit_minor, pricing.max_participants
+  pricing.deposit_usd_minor, pricing.deposit_mxn_minor, pricing.max_participants
 from (values
-  ('atv-sierra-madre', 8900, 160000, 3000, 8),
-  ('marietas-islands-adventure', 10900, 196000, 4000, 20),
-  ('sunset-sailing-cruise', 7900, 142000, 2000, 30),
-  ('los-arcos-snorkeling', 6500, 117000, 2000, 16),
-  ('private-yacht-experience', 39900, 718000, 12000, 10),
-  ('whale-watching', 9500, 171000, 3000, 18),
-  ('yelapa-day-trip', 9900, 178000, 3500, 24),
-  ('zipline-jungle-adventure', 8500, 153000, 3000, 14)
-) as pricing(slug, usd_minor, mxn_minor, deposit_minor, max_participants)
+  ('atv-sierra-madre', 8900, 160000, 3000, 54000, 8),
+  ('marietas-islands-adventure', 10900, 196000, 4000, 72000, 20),
+  ('sunset-sailing-cruise', 7900, 142000, 2000, 36000, 30),
+  ('los-arcos-snorkeling', 6500, 117000, 2000, 36000, 16),
+  ('private-yacht-experience', 39900, 718000, 12000, 216000, 10),
+  ('whale-watching', 9500, 171000, 3000, 54000, 18),
+  ('yelapa-day-trip', 9900, 178000, 3500, 63000, 24),
+  ('zipline-jungle-adventure', 8500, 153000, 3000, 54000, 14)
+) as pricing(
+  slug, usd_minor, mxn_minor, deposit_usd_minor, deposit_mxn_minor, max_participants
+)
 join public.tours t on t.slug = pricing.slug
 on conflict (tour_id, name) do update set
   retail_price_usd_minor = excluded.retail_price_usd_minor,
   retail_price_mxn_minor = excluded.retail_price_mxn_minor,
   deposit_usd_minor = excluded.deposit_usd_minor,
+  deposit_mxn_minor = excluded.deposit_mxn_minor,
   max_participants = excluded.max_participants,
   active = true;
+
+insert into public.tour_translations (
+  tour_id, locale, title, short_description, full_description, meeting_point,
+  included_items, excluded_items, requirements
+)
+select
+  t.id,
+  'es-MX',
+  copy.title,
+  copy.short_description,
+  copy.full_description,
+  copy.meeting_point,
+  copy.included_items,
+  copy.excluded_items,
+  copy.requirements
+from (values
+  (
+    'atv-sierra-madre', 'ATV Sierra Madre',
+    'Recorre senderos selváticos y cruza ríos al pie de la Sierra Madre.',
+    'Toma el manubrio y adéntrate por caminos de tierra en la Sierra Madre. Este recorrido guiado sube por la selva tropical, cruza ríos poco profundos y se detiene en un mirador antes de volver a la costa.',
+    'Muelle principal de Marina Vallarta',
+    array['ATV y combustible', 'Guía certificado', 'Casco y goggles', 'Agua embotellada'],
+    array['Propinas', 'Traslado desde el hotel'],
+    array['Identificación vigente', 'Edad mínima de 16 años para conducir', 'Calzado cerrado']
+  ),
+  (
+    'marietas-islands-adventure', 'Aventura en Islas Marietas',
+    'Haz snorkel, navega en kayak y visita la famosa Playa Escondida.',
+    'Una expedición de día completo a las protegidas Islas Marietas. Haz snorkel sobre arrecifes llenos de vida, rema en kayak por cuevas marinas y, si las condiciones lo permiten, visita la legendaria Playa Escondida.',
+    'Rampa de embarcaciones de Punta Mita',
+    array['Transporte en barco', 'Equipo de snorkel', 'Kayak', 'Comida y bebidas', 'Guía'],
+    array['Tarifa del parque nacional', 'Propinas'],
+    array['Saber nadar', 'Protector solar biodegradable']
+  ),
+  (
+    'sunset-sailing-cruise', 'Paseo en velero al atardecer',
+    'Navega por la Bahía de Banderas mientras el Pacífico se ilumina al atardecer.',
+    'Navega por la Bahía de Banderas en un catamarán clásico mientras el sol cae sobre el Pacífico. Disfruta barra libre, canapés y vistas inolvidables de la costa durante la hora dorada.',
+    'Muelle de Los Muertos',
+    array['Barra libre', 'Canapés', 'Música en vivo', 'Tripulación'],
+    array['Propinas'], array['Llegar 30 minutos antes']
+  ),
+  (
+    'los-arcos-snorkeling', 'Snorkel en Los Arcos',
+    'Nada entre peces tropicales bajo los impresionantes arcos de piedra.',
+    'Explora el santuario marino de Los Arcos, un conjunto de formaciones de granito lleno de vida tropical. Ideal para principiantes y familias, con aguas tranquilas y arrecifes poco profundos.',
+    'Muelle de Boca de Tomatlán',
+    array['Equipo de snorkel', 'Guía', 'Agua y fruta'],
+    array['Renta de traje de neopreno', 'Propinas'], array['Saber nadar']
+  ),
+  (
+    'private-yacht-experience', 'Experiencia en yate privado',
+    'Tu propio yate con tripulación para disfrutar un día en la bahía.',
+    'Renta un yate privado con capitán y tripulación para vivir un día totalmente personalizado en la Bahía de Banderas. Fondea en caletas apartadas, nada, usa el paddleboard y recorre la costa a tu ritmo.',
+    'Marina de Paradise Village',
+    array['Yate privado y tripulación', 'Combustible', 'Equipo de snorkel', 'Bebidas y snacks'],
+    array['Mejoras de catering', 'Propinas'], array['Confirmar con 48 h de anticipación']
+  ),
+  (
+    'whale-watching', 'Avistamiento de ballenas',
+    'Observa ballenas jorobadas en temporada acompañado por biólogos marinos.',
+    'De diciembre a marzo, las ballenas jorobadas llegan a la Bahía de Banderas. Únete a un grupo pequeño con un biólogo marino a bordo para vivir un encuentro respetuoso e inolvidable con estos gigantes.',
+    'Muelle 2 de Marina Vallarta',
+    array['Embarcación y guía', 'Biólogo marino', 'Agua y snacks'],
+    array['Propinas'], array['Se recomienda llevar una prenda abrigadora']
+  ),
+  (
+    'yelapa-day-trip', 'Excursión de un día a Yelapa',
+    'Viaja en barco a un pueblo sin autos, camina a una cascada y relájate en la playa.',
+    'Escápate a Yelapa, un pueblo pesquero sin autos al que solo se llega en barco. Camina hacia una cascada en la selva, prueba el famoso pay local y disfruta el ritmo tranquilo del sur de la bahía.',
+    'Muelle de Los Muertos',
+    array['Transporte en barco', 'Guía', 'Tiempo en la playa', 'Caminata a la cascada'],
+    array['Comida', 'Propinas'], array['Calzado cómodo para caminar']
+  ),
+  (
+    'zipline-jungle-adventure', 'Aventura de tirolesa en la selva',
+    'Vuela sobre la selva en un circuito de tirolesas de alta velocidad.',
+    'Vuela sobre las copas de los árboles en un circuito de tirolesas que cruza un cañón selvático. Combina el recorrido con rappel y un paseo en mula para una tarde llena de adrenalina.',
+    'Inicio del sendero El Nogalito',
+    array['Equipo y arnés', 'Guías', 'Transporte desde el punto de encuentro', 'Snack'],
+    array['Paquete de fotos', 'Propinas'], array['Peso máximo de 120 kg', 'Calzado cerrado']
+  )
+) as copy(
+  slug, title, short_description, full_description, meeting_point,
+  included_items, excluded_items, requirements
+)
+join public.tours t on t.slug = copy.slug
+on conflict (tour_id, locale) do update set
+  title = excluded.title,
+  short_description = excluded.short_description,
+  full_description = excluded.full_description,
+  meeting_point = excluded.meeting_point,
+  included_items = excluded.included_items,
+  excluded_items = excluded.excluded_items,
+  requirements = excluded.requirements,
+  updated_at = now();
 
 insert into private.operator_rates (tour_option_id, currency, provider_cost_minor)
 select option.id, 'USD', costs.provider_cost_minor

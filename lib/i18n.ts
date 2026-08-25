@@ -307,7 +307,7 @@ const locationES: Record<string, string> = {
 
 export function localizeTour(tour: Tour, language: Language): Tour {
   if (language !== 'ES') return tour
-  const copy = tourES[tour.id]
+  const copy = tour.translations?.['es-MX'] ?? tourES[tour.id]
 
   return {
     ...tour,

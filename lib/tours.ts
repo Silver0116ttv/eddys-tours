@@ -93,7 +93,19 @@ export interface Tour {
   requirements: string[]
   featured: boolean
   popular: boolean
+  translations?: Partial<Record<'es-MX', TourLocalizedCopy>>
 }
+
+export type TourLocalizedCopy = Pick<
+  Tour,
+  | 'title'
+  | 'shortDescription'
+  | 'fullDescription'
+  | 'meetingPoint'
+  | 'includedItems'
+  | 'excludedItems'
+  | 'requirements'
+>
 
 export interface CategoryItem {
   name: TourCategory

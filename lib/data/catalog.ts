@@ -1,17 +1,18 @@
 import 'server-only'
 
 import { unstable_cache } from 'next/cache'
-import { isTourCategory, price, toMXN, type Tour } from '@/lib/tours'
+import { isTourCategory, price, type Tour } from '@/lib/tours'
 import { toVallartaDate, toVallartaTime } from '@/lib/time'
 import { getFallbackTours } from '@/lib/data/fallback-catalog'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { createPublicClient } from '@/lib/supabase/public'
 import type {
-  DepartureRow,
+  DepartureAvailabilityRow,
   OperatorRow,
   TourMediaRow,
   TourOptionRow,
   TourRow,
+  TourTranslationRow,
 } from '@/lib/supabase/database.types'
 
 /** How long a cached catalog read stays fresh. Mirrored by the home page's `revalidate`. */
@@ -46,38 +47,51 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
   const operatorIds = [...new Set(typedTours.map((tour) => tour.operator_id))]
   const now = new Date().toISOString()
 
-  const [operatorsResult, mediaResult, optionsResult, departuresResult] = await Promise.all([
-    supabase.from('operators').select('*').in('id', operatorIds),
-    supabase.from('tour_media').select('*').in('tour_id', tourIds).order('position'),
-    supabase.from('tour_options').select('*').in('tour_id', tourIds).eq('active', true),
-    supabase
-      .from('departures')
-      .select('*')
-      .in('tour_id', tourIds)
-      .eq('status', 'scheduled')
-      .gte('starts_at', now)
-      .order('starts_at'),
-  ])
+  const [operatorsResult, mediaResult, optionsResult, translationsResult, availabilityResults] =
+    await Promise.all([
+      supabase.from('operators').select('*').in('id', operatorIds),
+      supabase.from('tour_media').select('*').in('tour_id', tourIds).order('position'),
+      supabase.from('tour_options').select('*').in('tour_id', tourIds).eq('active', true),
+      supabase.from('tour_translations').select('*').in('tour_id', tourIds),
+      Promise.all(
+        tourIds.map((tourId) =>
+          supabase.rpc('get_departure_availability', {
+            target_tour_id: tourId,
+            starts_after: now,
+          }),
+        ),
+      ),
+    ])
 
-  const firstError = [operatorsResult, mediaResult, optionsResult, departuresResult].find(
-    (result) => result.error,
-  )?.error
+  const firstError = [
+    operatorsResult,
+    mediaResult,
+    optionsResult,
+    translationsResult,
+    ...availabilityResults,
+  ].find((result) => result.error)?.error
   if (firstError) throw firstError
 
   const operators = (operatorsResult.data ?? []) as OperatorRow[]
   const media = (mediaResult.data ?? []) as TourMediaRow[]
   const options = (optionsResult.data ?? []) as TourOptionRow[]
-  const departures = (departuresResult.data ?? []) as DepartureRow[]
+  const translations = (translationsResult.data ?? []) as TourTranslationRow[]
+  const departures = availabilityResults.flatMap(
+    (result) => (result.data ?? []) as DepartureAvailabilityRow[],
+  )
 
   return typedTours.flatMap((row) => {
     const option = options.find((item) => item.tour_id === row.id)
     const operator = operators.find((item) => item.id === row.operator_id)
-    const tourDepartures = departures.filter((item) => item.tour_id === row.id)
+    const tourDepartures = departures.filter(
+      (item) => item.tour_id === row.id && item.remaining_capacity > 0,
+    )
     const images = media.filter((item) => item.tour_id === row.id).map((item) => item.url)
+    const spanish = translations.find(
+      (item) => item.tour_id === row.id && item.locale === 'es-MX',
+    )
 
     if (!option || !operator || !isTourCategory(row.category)) return []
-
-    const depositUSD = option.deposit_usd_minor / 100
 
     return [
       {
@@ -97,9 +111,7 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
           option.retail_price_usd_minor / 100,
           option.retail_price_mxn_minor / 100,
         ),
-        // Operators quote deposits in USD only, so the peso figure is derived
-        // with the same rounding the retail shelf price uses.
-        deposit: price(depositUSD, toMXN(depositUSD)),
+        deposit: price(option.deposit_usd_minor / 100, option.deposit_mxn_minor / 100),
         availableDates: [
           ...new Set(tourDepartures.map((item) => toVallartaDate(item.starts_at))),
         ],
@@ -107,7 +119,7 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
           ...new Set(tourDepartures.map((item) => toVallartaTime(item.starts_at))),
         ],
         availableSpots: tourDepartures.length
-          ? Math.min(...tourDepartures.map((item) => item.capacity))
+          ? Math.min(...tourDepartures.map((item) => item.remaining_capacity))
           : option.max_participants,
         meetingPoint: row.meeting_point,
         includedItems: row.included_items,
@@ -115,6 +127,19 @@ async function fetchCatalogFromSupabase(): Promise<Tour[]> {
         requirements: row.requirements,
         featured: row.featured,
         popular: row.popular,
+        translations: spanish
+          ? {
+              'es-MX': {
+                title: spanish.title,
+                shortDescription: spanish.short_description,
+                fullDescription: spanish.full_description,
+                meetingPoint: spanish.meeting_point,
+                includedItems: spanish.included_items,
+                excludedItems: spanish.excluded_items,
+                requirements: spanish.requirements,
+              },
+            }
+          : undefined,
       } satisfies Tour,
     ]
   })
