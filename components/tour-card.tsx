@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Clock, Heart, MapPin, Plus } from 'lucide-react'
 import { type Tour, formatPrice } from '@/lib/tours'
 import { useCart } from '@/components/cart/cart-context'
@@ -10,7 +11,15 @@ import { cn } from '@/lib/utils'
 import { useI18n } from '@/components/use-i18n'
 import { localizeCategory, localizeTour } from '@/lib/i18n'
 
-export function TourCard({ tour, className }: { tour: Tour; className?: string }) {
+export function TourCard({
+  tour,
+  className,
+  eager = false,
+}: {
+  tour: Tour
+  className?: string
+  eager?: boolean
+}) {
   const { addItem, currency } = useCart()
   const { language, t } = useI18n()
   const displayTour = localizeTour(tour, language)
@@ -25,13 +34,20 @@ export function TourCard({ tour, className }: { tour: Tour; className?: string }
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={tour.images[0] ?? '/placeholder.svg'}
-          alt={displayTour.title}
-          fill
-          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 24vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <Link
+          href={`/tours/${tour.slug}`}
+          aria-label={`${t('common.details')}: ${displayTour.title}`}
+          className="absolute inset-0"
+        >
+          <Image
+            src={tour.images[0] ?? '/placeholder.svg'}
+            alt={displayTour.title}
+            fill
+            loading={eager ? 'eager' : 'lazy'}
+            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 24vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <span className="rounded-full bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-charcoal backdrop-blur-sm">
             {localizeCategory(tour.category, language)}
@@ -61,7 +77,9 @@ export function TourCard({ tour, className }: { tour: Tour; className?: string }
         </div>
 
         <h3 className="font-display text-base font-semibold leading-snug text-foreground">
-          {displayTour.title}
+          <Link href={`/tours/${tour.slug}`} className="transition-colors hover:text-ocean">
+            {displayTour.title}
+          </Link>
         </h3>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

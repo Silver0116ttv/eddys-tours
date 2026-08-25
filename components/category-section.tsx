@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { categories, type CategoryItem } from '@/lib/tours'
+import Link from 'next/link'
+import { categories, type CategoryItem, type Tour } from '@/lib/tours'
 import { SectionHeading } from '@/components/section-heading'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/components/use-i18n'
@@ -18,8 +19,8 @@ function CategoryCard({ category }: { category: CategoryItem }) {
   const { language, t } = useI18n()
   const name = localizeCategory(category.name, language)
   return (
-    <a
-      href="#tours"
+    <Link
+      href={`/tours?category=${encodeURIComponent(category.name)}`}
       className={cn(
         'group relative overflow-hidden rounded-2xl',
         spanBySize[category.size],
@@ -49,12 +50,16 @@ function CategoryCard({ category }: { category: CategoryItem }) {
           →
         </span>
       </div>
-    </a>
+    </Link>
   )
 }
 
-export function CategorySection() {
+export function CategorySection({ tours }: { tours: Tour[] }) {
   const { t } = useI18n()
+  const activeCategories = categories.flatMap((category) => {
+    const count = tours.filter((tour) => tour.category === category.name).length
+    return count ? [{ ...category, count }] : []
+  })
   return (
     <section id="categories" className="scroll-mt-24 bg-secondary/40 py-16 md:py-24">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
@@ -64,7 +69,7 @@ export function CategorySection() {
           subtitle={t('category.subtitle')}
         />
         <div className="mt-8 grid grid-flow-dense grid-cols-2 gap-3 [grid-auto-rows:150px] sm:[grid-auto-rows:190px] md:mt-10 md:gap-4 lg:grid-cols-4 lg:[grid-auto-rows:220px]">
-          {categories.map((category) => (
+          {activeCategories.map((category) => (
             <CategoryCard key={category.name} category={category} />
           ))}
         </div>

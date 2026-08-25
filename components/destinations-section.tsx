@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { destinations } from '@/lib/tours'
 import { SectionHeading } from '@/components/section-heading'
@@ -20,9 +21,9 @@ export function DestinationsSection() {
 
         <div className="mt-8 grid grid-cols-2 gap-4 md:mt-10 md:grid-cols-3 lg:gap-6">
           {destinations.map((destination) => (
-            <a
+            <Link
               key={destination.slug}
-              href="#tours"
+              href={`/tours?destination=${encodeURIComponent(destination.name)}`}
               className="group relative flex aspect-4/5 flex-col justify-end overflow-hidden rounded-2xl md:aspect-4/3"
             >
               <Image
@@ -44,7 +45,7 @@ export function DestinationsSection() {
                   {localizeDestinationDescription(destination.slug, destination.description, language)}
                 </p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

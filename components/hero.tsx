@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, useReducedMotion } from 'motion/react'
 import { HeroSearch } from '@/components/hero-search'
 import { useI18n } from '@/components/use-i18n'
@@ -59,12 +60,12 @@ export function Hero() {
           </motion.p>
 
           <motion.div {...rise(0.5)} className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#tours"
+            <Link
+              href="/tours"
               className="inline-flex items-center justify-center rounded-full bg-sunset-deep px-7 py-3.5 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-[1.03] active:scale-95"
             >
               {t('nav.explore')}
-            </a>
+            </Link>
             <a
               href="#tours"
               className="inline-flex items-center justify-center rounded-full border border-white/40 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20"

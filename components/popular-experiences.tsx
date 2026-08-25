@@ -16,7 +16,7 @@ export function PopularExperiences({ tours }: { tours: Tour[] }) {
           eyebrow={t('popular.eyebrow')}
           title={t('popular.title')}
           subtitle={t('popular.subtitle')}
-          action={{ label: t('popular.all'), href: '#categories' }}
+          action={{ label: t('popular.all'), href: '/tours' }}
         />
 
         <div

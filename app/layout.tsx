@@ -69,7 +69,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${inter.variable} bg-background`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${dmSans.variable} ${inter.variable} bg-background`}
+    >
       <body className="antialiased">
         <CartProvider>
           <LanguageSync />

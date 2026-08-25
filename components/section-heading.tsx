@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 interface SectionHeadingProps {
   eyebrow?: string
@@ -41,7 +42,7 @@ export function SectionHeading({
         )}
       </div>
       {action && (
-        <a
+        <Link
           href={action.href}
           className="group inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-ocean hover:text-ocean-deep"
         >
@@ -49,7 +50,7 @@ export function SectionHeading({
           <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
             →
           </span>
-        </a>
+        </Link>
       )}
     </div>
   )

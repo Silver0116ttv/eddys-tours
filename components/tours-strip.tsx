@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useReducedMotion } from 'motion/react'
 import { formatPrice, type Tour } from '@/lib/tours'
 import { useCart } from '@/components/cart/cart-context'
@@ -15,8 +16,8 @@ function StripCard({ tour, decorative = false }: { tour: Tour; decorative?: bool
   const displayTour = localizeTour(tour, language)
 
   return (
-    <a
-      href="#tours"
+    <Link
+      href={`/tours/${tour.slug}`}
       className="group flex w-[220px] shrink-0 items-center gap-3 rounded-xl border border-border bg-card p-2 pr-4 shadow-sm transition-shadow hover:shadow-md"
       draggable={false}
       // The marquee renders the list twice to loop seamlessly; the second pass
@@ -43,7 +44,7 @@ function StripCard({ tour, decorative = false }: { tour: Tour; decorative?: bool
           </span>
         </span>
       </span>
-    </a>
+    </Link>
   )
 }
 

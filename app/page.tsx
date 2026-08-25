@@ -31,7 +31,7 @@ export default async function HomePage() {
         <Hero />
         <ToursStrip tours={tours} />
         <PopularExperiences tours={tours} />
-        <CategorySection />
+        <CategorySection tours={tours} />
         <Storytelling />
         <DestinationsSection />
         <FeaturedTour tours={tours} />

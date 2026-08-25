@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { Check, Clock, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Stars } from '@/components/stars'
@@ -36,7 +37,9 @@ export function FeaturedTour({ tours }: { tours: Tour[] }) {
             {t('featured.label')}
           </span>
           <h2 className="mt-5 font-display text-4xl leading-[1.05] text-balance text-foreground md:text-6xl">
-            {displayTour.title}
+            <Link href={`/tours/${tour.slug}`} className="transition-colors hover:text-ocean">
+              {displayTour.title}
+            </Link>
           </h2>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -72,6 +75,12 @@ export function FeaturedTour({ tours }: { tours: Tour[] }) {
             <Button size="lg" onClick={() => addItem(tour)} className="rounded-full">
               {t('featured.add')}
             </Button>
+            <Link
+              href={`/tours/${tour.slug}`}
+              className="text-sm font-semibold text-ocean underline-offset-4 hover:underline"
+            >
+              {t('common.details')} →
+            </Link>
             <div className="text-sm text-muted-foreground">
               <span className="text-2xl font-semibold text-foreground">
                 {formatPrice(tour.retailPrice, currency)}

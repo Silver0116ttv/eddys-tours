@@ -1,33 +1,63 @@
 'use client'
 
-import { Camera, Globe, Mail, MessageCircle, Phone } from 'lucide-react'
+import Link from 'next/link'
+import { Mail, MessageCircle, Phone } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { useI18n } from '@/components/use-i18n'
 
-const columns = [
+type FooterLink = readonly [englishLabel: string, spanishLabel: string, href: string]
+
+interface FooterColumn {
+  title: 'footer.experiences' | 'footer.destinations' | 'footer.company' | 'footer.support'
+  links: FooterLink[]
+}
+
+const columns: FooterColumn[] = [
   {
     title: 'footer.experiences' as const,
-    links: [['Adventure', 'Aventura'], ['Water & Snorkeling', 'Agua y snorkel'], ['Boat Cruises', 'Paseos en barco'], ['Nature & Wildlife', 'Naturaleza y vida silvestre'], ['Family Trips', 'Viajes en familia']],
+    links: [
+      ['Adventure', 'Aventura', '/tours?category=Adventure'],
+      ['Water & Snorkeling', 'Agua y snorkel', '/tours?category=Water'],
+      ['Boat Cruises', 'Paseos en barco', '/tours?category=Boats'],
+      ['Nature & Wildlife', 'Naturaleza y vida silvestre', '/tours?category=Nature'],
+      ['Wildlife', 'Vida silvestre', '/tours?category=Wildlife'],
+    ],
   },
   {
     title: 'footer.destinations' as const,
-    links: [['Puerto Vallarta', 'Puerto Vallarta'], ['Nuevo Vallarta', 'Nuevo Vallarta'], ['Sayulita', 'Sayulita'], ['Punta Mita', 'Punta Mita'], ['Yelapa', 'Yelapa']],
+    links: [
+      ['Puerto Vallarta', 'Puerto Vallarta', '/tours?destination=Puerto%20Vallarta'],
+      ['Nuevo Vallarta', 'Nuevo Vallarta', '/tours?destination=Nuevo%20Vallarta'],
+      ['Sayulita', 'Sayulita', '/tours?destination=Sayulita'],
+      ['Punta Mita', 'Punta Mita', '/tours?destination=Punta%20Mita'],
+      ['Yelapa', 'Yelapa', '/tours?destination=Yelapa'],
+    ],
   },
   {
     title: 'footer.company' as const,
-    links: [["About Eddy's", "Conoce a Eddy's"], ['Become a Partner', 'Sé nuestro socio'], ['Careers', 'Empleo'], ['Press', 'Prensa'], ['Blog', 'Blog']],
+    links: [
+      ["About Eddy's", "Conoce a Eddy's", '/#about'],
+      ['Become a Partner', 'Sé nuestro socio', 'mailto:hola@eddystours.mx?subject=Partner%20with%20Eddy%27s%20Tours'],
+      ['Careers', 'Empleo', 'mailto:hola@eddystours.mx?subject=Careers%20at%20Eddy%27s%20Tours'],
+      ['Press', 'Prensa', 'mailto:hola@eddystours.mx?subject=Press%20inquiry'],
+    ],
   },
   {
     title: 'footer.support' as const,
-    links: [['Help Center', 'Centro de ayuda'], ['Booking Policy', 'Políticas de reservación'], ['Cancellations', 'Cancelaciones'], ['Contact Us', 'Contáctanos'], ['Safety', 'Seguridad']],
+    links: [
+      ['Help Center', 'Centro de ayuda', 'mailto:hola@eddystours.mx?subject=Booking%20help'],
+      ['Booking Policy', 'Políticas de reservación', '/booking-policy'],
+      ['Cancellations', 'Cancelaciones', '/booking-policy#cancellations'],
+      ['Contact Us', 'Contáctanos', 'mailto:hola@eddystours.mx'],
+      ['Safety', 'Seguridad', '/booking-policy#safety'],
+    ],
   },
 ]
 
-/** Point each `href` at the live profile before launch. */
 const socialLinks = [
-  { label: 'Instagram', href: '#', icon: Camera },
-  { label: 'WhatsApp', href: '#', icon: MessageCircle },
-  { label: 'TripAdvisor', href: '#', icon: Globe },
+  { label: 'WhatsApp', href: 'https://wa.me/523221234567', icon: MessageCircle },
+  { label: 'Email', href: 'mailto:hola@eddystours.mx', icon: Mail },
+  { label: 'Phone', href: 'tel:+523221234567', icon: Phone },
 ]
 
 export function SiteFooter() {
@@ -60,14 +90,23 @@ export function SiteFooter() {
             <div key={column.title}>
               <h3 className="font-sans text-sm font-semibold text-foreground">{t(column.title)}</h3>
               <ul className="mt-4 space-y-3">
-                {column.links.map(([englishLabel, spanishLabel]) => (
+                {column.links.map(([englishLabel, spanishLabel, href]) => (
                   <li key={englishLabel}>
-                    <a
-                      href="#"
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {language === 'ES' ? spanishLabel : englishLabel}
-                    </a>
+                    {href.startsWith('/') ? (
+                      <Link
+                        href={href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {language === 'ES' ? spanishLabel : englishLabel}
+                      </Link>
+                    ) : (
+                      <a
+                        href={href}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {language === 'ES' ? spanishLabel : englishLabel}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

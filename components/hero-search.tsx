@@ -2,18 +2,23 @@
 
 import { useState } from 'react'
 import { Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { DatePicker } from '@/components/date-picker'
 import { useI18n } from '@/components/use-i18n'
 
 export function HeroSearch() {
+  const router = useRouter()
   const [date, setDate] = useState<string>('')
   const [query, setQuery] = useState('')
   const { t } = useI18n()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // No catalog filtering yet: the form scrolls to the grid it will filter.
-    document.getElementById('tours')?.scrollIntoView({ behavior: 'smooth' })
+    const params = new URLSearchParams()
+    if (query.trim()) params.set('q', query.trim())
+    if (date) params.set('date', date)
+    const suffix = params.toString()
+    router.push(suffix ? `/tours?${suffix}` : '/tours')
   }
 
   return (

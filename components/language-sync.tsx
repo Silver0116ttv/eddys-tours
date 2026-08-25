@@ -11,17 +11,6 @@ export function LanguageSync() {
   useEffect(() => {
     const spanish = language === 'ES'
     document.documentElement.lang = spanish ? 'es-MX' : 'en'
-    document.title = spanish
-      ? "Eddy's Tours — Tours y experiencias en Puerto Vallarta, México"
-      : "Eddy's Tours — Tours & Experiences in Puerto Vallarta, Mexico"
-
-    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]')
-    description?.setAttribute(
-      'content',
-      spanish
-        ? 'Descubre experiencias inolvidables en Puerto Vallarta y la Bahía de Banderas.'
-        : 'Discover unforgettable experiences across Puerto Vallarta and the Bay of Banderas.',
-    )
   }, [language])
 
   return (
