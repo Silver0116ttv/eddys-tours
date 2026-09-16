@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const tours = await getCatalogTours()
 
   return [
+    ...['destinations', 'categories', 'about', 'help', 'contact', 'privacy'].map(path => ({ url: `${siteUrl}/${path}`, changeFrequency: 'monthly' as const, priority: 0.6 })),
     {
       url: `${siteUrl}/`,
       lastModified: new Date(),

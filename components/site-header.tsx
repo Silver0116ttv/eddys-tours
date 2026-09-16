@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Menu, Search, ShoppingBag, X } from 'lucide-react'
+import { Heart, Menu, Search, ShoppingBag, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -11,10 +11,10 @@ import { useI18n } from '@/components/use-i18n'
 
 const NAV = [
   { label: 'nav.tours' as const, href: '/tours' },
-  { label: 'nav.destinations' as const, href: '/#destinations' },
-  { label: 'nav.categories' as const, href: '/#categories' },
-  { label: 'nav.about' as const, href: '/#about' },
-  { label: 'nav.contact' as const, href: '/#footer' },
+  { label: 'nav.destinations' as const, href: '/destinations' },
+  { label: 'nav.categories' as const, href: '/categories' },
+  { label: 'nav.about' as const, href: '/about' },
+  { label: 'nav.contact' as const, href: '/contact' },
 ]
 
 const MOBILE_MENU_ID = 'site-mobile-menu'
@@ -71,7 +71,8 @@ export function SiteHeader() {
   const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { itemCount, openCart, currency, setCurrency, language, setLanguage } = useCart()
+  const { itemCount, openCart, currency, setCurrency, language, setLanguage } =
+    useCart()
   const { t } = useI18n()
   const previousCount = useRef(itemCount)
   const [bump, setBump] = useState(false)
@@ -120,19 +121,28 @@ export function SiteHeader() {
     >
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-10">
         {/* Left: logo */}
-        <Link href="/" className="flex items-center" aria-label={t('header.home')}>
+        <Link
+          href="/"
+          className="flex items-center"
+          aria-label={t('header.home')}
+        >
           <Logo tone={tone} />
         </Link>
 
         {/* Center nav */}
-        <nav className="hidden items-center gap-7 lg:flex" aria-label={t('nav.primary')}>
+        <nav
+          className="hidden items-center gap-7 xl:flex"
+          aria-label={t('nav.primary')}
+        >
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 'text-sm font-medium transition-colors',
-                solid ? 'text-foreground/80 hover:text-ocean' : 'text-white/90 hover:text-white',
+                solid
+                  ? 'text-foreground/80 hover:text-ocean'
+                  : 'text-white/90 hover:text-white',
               )}
             >
               {t(item.label)}
@@ -142,13 +152,27 @@ export function SiteHeader() {
 
         {/* Right cluster */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/favorites"
+            aria-label={language === 'ES' ? 'Mis favoritos' : 'My favorites'}
+            className={cn(
+              'grid size-9 place-items-center rounded-full',
+              solid
+                ? 'text-foreground hover:bg-muted'
+                : 'text-white hover:bg-white/15',
+            )}
+          >
+            <Heart className="size-5" />
+          </Link>
           <button
             type="button"
             onClick={focusSearch}
             aria-label={t('header.search')}
             className={cn(
               'hidden size-9 place-items-center rounded-full transition-colors sm:grid',
-              solid ? 'text-foreground hover:bg-muted' : 'text-white hover:bg-white/15',
+              solid
+                ? 'text-foreground hover:bg-muted'
+                : 'text-white hover:bg-white/15',
             )}
           >
             <Search className="size-4.5" />
@@ -178,12 +202,18 @@ export function SiteHeader() {
               count: itemCount,
               items:
                 language === 'ES'
-                  ? itemCount === 1 ? 'elemento' : 'elementos'
-                  : itemCount === 1 ? 'item' : 'items',
+                  ? itemCount === 1
+                    ? 'elemento'
+                    : 'elementos'
+                  : itemCount === 1
+                    ? 'item'
+                    : 'items',
             })}
             className={cn(
               'relative grid size-9 place-items-center rounded-full transition-colors',
-              solid ? 'text-foreground hover:bg-muted' : 'text-white hover:bg-white/15',
+              solid
+                ? 'text-foreground hover:bg-muted'
+                : 'text-white hover:bg-white/15',
             )}
           >
             <ShoppingBag className="size-5" />
@@ -203,7 +233,7 @@ export function SiteHeader() {
 
           <Link
             href="/tours"
-            className="hidden rounded-full bg-sunset-deep px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.03] active:scale-95 lg:inline-flex"
+            className="hidden rounded-full bg-sunset-deep px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.03] active:scale-95 xl:inline-flex"
           >
             {t('nav.explore')}
           </Link>
@@ -211,30 +241,38 @@ export function SiteHeader() {
           {/* Mobile toggle */}
           <button
             type="button"
-            aria-label={mobileOpen ? t('header.closeMenu') : t('header.openMenu')}
+            aria-label={
+              mobileOpen ? t('header.closeMenu') : t('header.openMenu')
+            }
             aria-expanded={mobileOpen}
             aria-controls={MOBILE_MENU_ID}
             onClick={() => setMobileOpen((open) => !open)}
             className={cn(
-              'grid size-9 place-items-center rounded-full transition-colors lg:hidden',
-              solid ? 'text-foreground hover:bg-muted' : 'text-white hover:bg-white/15',
+              'grid size-9 place-items-center rounded-full transition-colors xl:hidden',
+              solid
+                ? 'text-foreground hover:bg-muted'
+                : 'text-white hover:bg-white/15',
             )}
           >
-            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {mobileOpen ? (
+              <X className="size-5" />
+            ) : (
+              <Menu className="size-5" />
+            )}
           </button>
         </div>
       </div>
 
       {/*
-        * Collapsed with a grid-row transition instead of being unmounted, so
-        * the panel's state is driven by class names alone. `inert` keeps the
-        * collapsed links out of the tab order and the accessibility tree.
-        */}
+       * Collapsed with a grid-row transition instead of being unmounted, so
+       * the panel's state is driven by class names alone. `inert` keeps the
+       * collapsed links out of the tab order and the accessibility tree.
+       */}
       <div
         id={MOBILE_MENU_ID}
         inert={!mobileOpen}
         className={cn(
-          'grid overflow-hidden bg-background transition-[grid-template-rows,opacity] duration-250 ease-in-out motion-reduce:transition-none lg:hidden',
+          'grid overflow-hidden bg-background transition-[grid-template-rows,opacity] duration-250 ease-in-out motion-reduce:transition-none xl:hidden',
           mobileOpen
             ? 'grid-rows-[1fr] border-t border-border opacity-100'
             : 'grid-rows-[0fr] opacity-0',
@@ -252,9 +290,25 @@ export function SiteHeader() {
                 {t(item.label)}
               </Link>
             ))}
+            <Link
+              href="/trip"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-lg px-3 py-3 font-medium hover:bg-muted"
+            >
+              {language === 'ES' ? 'Mi viaje' : 'My trip'}
+            </Link>
+            <Link
+              href="/help"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-lg px-3 py-3 font-medium hover:bg-muted"
+            >
+              {language === 'ES' ? 'Centro de ayuda' : 'Help center'}
+            </Link>
             <div className="mt-2 flex flex-wrap items-center gap-3 border-t border-border px-3 pt-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground">{t('header.language')}</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t('header.language')}
+                </span>
                 <Segmented
                   label={t('header.language')}
                   options={['EN', 'ES'] as const}
@@ -264,7 +318,9 @@ export function SiteHeader() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground">{t('header.currency')}</span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t('header.currency')}
+                </span>
                 <Segmented
                   label={t('header.currency')}
                   options={['USD', 'MXN'] as const}

@@ -1,6 +1,363 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+.travel-container {
+  width: min(1240px, calc(100% - 40px));
+  margin-inline: auto;
+}
+.action-primary,
+.action-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.action-primary {
+  background: var(--ocean);
+  color: white;
+}
+.action-primary:hover {
+  background: var(--ocean-deep);
+}
+.action-secondary {
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--charcoal);
+}
+.action-secondary:hover {
+  background: var(--muted);
+}
+button,
+a,
+input,
+select,
+textarea,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button:not(:disabled),
+summary {
+  cursor: pointer;
+}
+:is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--ocean);
+  outline-offset: 4px;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.field :is(input, select, textarea) {
+  min-height: 48px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  color: var(--charcoal);
+  font-weight: 400;
+}
+.field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 64px 24px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 20px;
+}
+.empty-state h2 {
+  font-size: 26px;
+  font-weight: 700;
+}
+.empty-state p {
+  max-width: 440px;
+  color: var(--muted-foreground);
+}
+.surface {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: clamp(20px, 3vw, 32px);
+}
+.admin-app {
+  --border: #e3e9eb;
+  --muted-foreground: #647780;
+  background: #f3f6f7;
+  min-height: 100svh;
+  color: #203b46;
+}
+.admin-sidebar {
+  width: 244px;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: #173d47;
+  overflow-y: auto;
+}
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #c1d0d4;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.admin-nav-item:hover {
+  background: #ffffff0d;
+  color: white;
+}
+.admin-nav-item.active {
+  background: #31565f;
+  color: white;
+  box-shadow: inset 3px 0 #8bc9c8;
+}
+.admin-main {
+  margin-left: 244px;
+}
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 78px;
+  padding: 14px 32px;
+  border-bottom: 1px solid #e3e9eb;
+  background: white;
+}
+.admin-content {
+  padding: 36px 32px 24px;
+  max-width: 1600px;
+  margin: auto;
+}
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.admin-stat {
+  background: white;
+  border: 1px solid #e3e9eb;
+  border-radius: 13px;
+  padding: 22px;
+}
+.admin-panel {
+  border: 1px solid #e3e9eb;
+  border-radius: 14px;
+  background: white;
+  overflow: hidden;
+}
+.admin-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+}
+.admin-panel-heading h2 {
+  font-size: 17px;
+  font-weight: 700;
+}
+.admin-panel-heading p {
+  color: #647780;
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.admin-primary,
+.admin-secondary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.admin-primary {
+  background: #245a67;
+  color: white;
+}
+.admin-primary:hover {
+  background: #173d47;
+}
+.admin-secondary {
+  background: white;
+  border: 1px solid #dde5e8;
+}
+.admin-secondary:hover {
+  background: #f0f5f5;
+}
+.admin-icon-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e3e9eb;
+  border-radius: 7px;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.admin-table th {
+  color: #697d85;
+  font-weight: 500;
+  background: #f8fafb;
+  padding: 13px 20px;
+  white-space: nowrap;
+}
+.admin-table td {
+  padding: 18px 20px;
+  border-top: 1px solid #edf0f1;
+}
+.admin-table tbody tr:hover {
+  background: #fbfdfd;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #edf1f4;
+  color: #5d6f7d;
+}
+.status-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-confirmed,
+.status-published,
+.status-paid,
+.status-active {
+  background: #eaf4ee;
+  color: #397055;
+}
+.status-pending_payment,
+.status-pending,
+.status-new {
+  background: #fcf3df;
+  color: #90671c;
+}
+.status-cancelled,
+.status-rejected {
+  background: #fbeceb;
+  color: #a4544d;
+}
+.status-contacted,
+.status-completed,
+.status-scheduled {
+  background: #eaf0f8;
+  color: #4a6797;
+}
+.admin-dialog {
+  margin: auto;
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100svh - 48px);
+  border: 1px solid #e3e9eb;
+  border-radius: 18px;
+  color: #203b46;
+  background: white;
+  box-shadow: 0 30px 80px #173d4733;
+}
+.admin-dialog::backdrop {
+  background: #102c3a70;
+  backdrop-filter: blur(3px);
+}
+@media (max-width: 1200px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1023px) {
+  .admin-sidebar {
+    visibility: hidden;
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+  }
+  .admin-sidebar.is-open {
+    visibility: visible;
+    transform: translateX(0);
+  }
+  .admin-main {
+    margin-left: 0;
+  }
+  .admin-content {
+    padding: 28px 20px;
+  }
+  .admin-topbar {
+    padding: 12px 20px;
+  }
+}
+@media (max-width: 480px) {
+  .admin-stat {
+    padding: 16px;
+  }
+  .admin-stats {
+    gap: 10px;
+  }
+  .admin-content {
+    padding: 24px 14px;
+  }
+  .admin-topbar {
+    padding: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+@media print {
+  header,
+  footer,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
+
 /*
  * The storefront is deliberately light-only (see `color-scheme` below). This
  * custom variant re-points `dark:` at an opt-in `.dark` ancestor that the app

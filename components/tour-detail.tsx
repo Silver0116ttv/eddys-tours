@@ -13,6 +13,8 @@ import {
   Plus,
   ShieldCheck,
   Users,
+  Heart,
+  Share2,
   X,
 } from 'lucide-react'
 import { useCart, type PaymentType } from '@/components/cart/cart-context'
@@ -21,6 +23,8 @@ import { TourCard } from '@/components/tour-card'
 import { useI18n } from '@/components/use-i18n'
 import { localizeCategory, localizeReview, localizeTour } from '@/lib/i18n'
 import { formatPrice, reviews, scalePrice, type Tour } from '@/lib/tours'
+import { useFavorites } from '@/components/travel/use-favorites'
+import { TourGallery } from '@/components/travel/tour-gallery'
 
 function formatTourDate(iso: string, locale: string) {
   const [year, month, day] = iso.split('-').map(Number)
@@ -32,13 +36,25 @@ function formatTourDate(iso: string, locale: string) {
   })
 }
 
-export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
+export function TourDetail({
+  tour,
+  related,
+  preview = false,
+}: {
+  tour: Tour
+  related: Tour[]
+  preview?: boolean
+}) {
   const { addItem, currency } = useCart()
   const { language, locale, t } = useI18n()
   const displayTour = localizeTour(tour, language)
+  const { ids, toggle } = useFavorites()
+  const [shareMessage, setShareMessage] = useState('')
   const [date, setDate] = useState(tour.availableDates[0] ?? '')
   const [time, setTime] = useState(tour.availableTimes[0] ?? '')
-  const [adults, setAdults] = useState(2)
+  const [adults, setAdults] = useState(
+    Math.max(1, Math.min(2, tour.availableSpots)),
+  )
   const [paymentType, setPaymentType] = useState<PaymentType>('deposit')
 
   const total = scalePrice(tour.retailPrice, adults)
@@ -50,6 +66,7 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
   )
 
   function addConfiguredTour() {
+    if (preview) return
     addItem(tour, { date, time, adults, paymentType })
   }
 
@@ -93,7 +110,8 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium text-white/90">
               <span className="inline-flex items-center gap-2">
                 <Stars rating={tour.rating} />
-                {tour.rating.toFixed(1)} · {tour.reviewsCount} {t('common.reviews')}
+                {tour.rating.toFixed(1)} · {tour.reviewsCount}{' '}
+                {t('common.reviews')}
               </span>
               <span className="inline-flex items-center gap-2">
                 <Clock className="size-4" aria-hidden="true" />
@@ -111,9 +129,57 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
       <section className="py-12 md:py-20">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16 lg:px-10">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-ocean">
-              {t('detail.operator', { name: tour.providerName })}
-            </p>
+            <div className="mb-7 flex flex-wrap items-center gap-3">
+              <button
+                className="action-secondary"
+                aria-pressed={ids.includes(tour.id)}
+                onClick={() => toggle(tour.id)}
+              >
+                <Heart
+                  className={`size-4 ${ids.includes(tour.id) ? 'fill-sunset text-sunset' : ''}`}
+                />
+                {language === 'ES'
+                  ? ids.includes(tour.id)
+                    ? 'Guardado'
+                    : 'Guardar tour'
+                  : ids.includes(tour.id)
+                    ? 'Saved'
+                    : 'Save tour'}
+              </button>
+              <button
+                className="action-secondary"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(window.location.href)
+                    setShareMessage(
+                      language === 'ES' ? 'Enlace copiado' : 'Link copied',
+                    )
+                  } catch {
+                    setShareMessage(
+                      language === 'ES'
+                        ? 'Copia el enlace desde la barra de direcciones.'
+                        : 'Copy the link from your address bar.',
+                    )
+                  }
+                }}
+              >
+                <Share2 className="size-4" />
+                {language === 'ES' ? 'Compartir' : 'Share'}
+              </button>
+              <span role="status" className="text-xs text-ocean">
+                {shareMessage}
+              </span>
+            </div>
+            <div className="text-sm font-semibold text-ocean">
+              <div className="mb-6">
+                <TourGallery images={tour.images} title={displayTour.title} />
+              </div>
+              {tour.sample
+                ? language === 'ES'
+                  ? 'Tour de ejemplo · Datos de demostración'
+                  : 'Sample tour · Demonstration data'
+                : t('detail.operator', { name: tour.providerName })}
+            </div>
             <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground">
               {t('detail.about')}
             </h2>
@@ -128,8 +194,14 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                 </h3>
                 <ul className="mt-4 space-y-3">
                   {displayTour.includedItems.map((item) => (
-                    <li key={item} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
-                      <Check className="mt-0.5 size-4 shrink-0 text-jungle" aria-hidden="true" />
+                    <li
+                      key={item}
+                      className="flex gap-3 text-sm leading-relaxed text-muted-foreground"
+                    >
+                      <Check
+                        className="mt-0.5 size-4 shrink-0 text-jungle"
+                        aria-hidden="true"
+                      />
                       {item}
                     </li>
                   ))}
@@ -142,8 +214,14 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                 </h3>
                 <ul className="mt-4 space-y-3">
                   {displayTour.excludedItems.map((item) => (
-                    <li key={item} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
-                      <X className="mt-0.5 size-4 shrink-0 text-sunset-deep" aria-hidden="true" />
+                    <li
+                      key={item}
+                      className="flex gap-3 text-sm leading-relaxed text-muted-foreground"
+                    >
+                      <X
+                        className="mt-0.5 size-4 shrink-0 text-sunset-deep"
+                        aria-hidden="true"
+                      />
                       {item}
                     </li>
                   ))}
@@ -154,7 +232,10 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <section className="rounded-2xl bg-secondary/60 p-6">
                 <h3 className="flex items-center gap-2 font-display text-lg font-bold text-foreground">
-                  <ShieldCheck className="size-5 text-ocean" aria-hidden="true" />
+                  <ShieldCheck
+                    className="size-5 text-ocean"
+                    aria-hidden="true"
+                  />
                   {t('detail.requirements')}
                 </h3>
                 <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted-foreground">
@@ -172,26 +253,61 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                   {displayTour.meetingPoint}
                 </p>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${tour.meetingPoint}, ${tour.location}, Mexico`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-block text-sm font-semibold text-ocean"
+                >
+                  {language === 'ES'
+                    ? 'Consultar ubicación en el mapa'
+                    : 'Look up location on the map'}
+                </a>
               </section>
             </div>
 
+            <div className="mt-8 rounded-xl border p-6">
+              <h3 className="font-semibold">
+                {language === 'ES' ? 'Antes de reservar' : 'Before you book'}
+              </h3>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                {language === 'ES'
+                  ? 'Las fechas y lugares están sujetos a confirmación del operador. Consulta las condiciones de cambios y cancelaciones antes de elegir.'
+                  : 'Dates and spots are subject to operator confirmation. Review change and cancellation terms before choosing.'}
+              </p>
+              <Link
+                href="/booking-policy"
+                className="mt-3 inline-block text-sm font-semibold text-ocean"
+              >
+                {language === 'ES'
+                  ? 'Ver política de reservación'
+                  : 'Read booking policy'}
+              </Link>
+            </div>
             {tourReviews.length > 0 && (
               <section className="mt-12 border-t border-border pt-10">
                 <h2 className="font-display text-3xl font-bold tracking-tight text-foreground">
-                  {tour.rating.toFixed(1)} · {tour.reviewsCount} {t('common.reviews')}
+                  {tour.rating.toFixed(1)} · {tour.reviewsCount}{' '}
+                  {t('common.reviews')}
                 </h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {tourReviews.map((sourceReview) => {
                     const review = localizeReview(sourceReview, language)
                     return (
-                      <figure key={review.id} className="rounded-2xl border border-border bg-card p-6">
+                      <figure
+                        key={review.id}
+                        className="rounded-2xl border border-border bg-card p-6"
+                      >
                         <Stars rating={review.rating} />
                         <blockquote className="mt-4 leading-relaxed text-muted-foreground">
                           “{review.content}”
                         </blockquote>
                         <figcaption className="mt-5 flex items-center gap-2 text-sm font-semibold text-foreground">
                           {review.customerName}
-                          <BadgeCheck className="size-4 text-ocean" aria-label={t('reviews.verified')} />
+                          <BadgeCheck
+                            className="size-4 text-ocean"
+                            aria-label={t('reviews.verified')}
+                          />
                         </figcaption>
                       </figure>
                     )
@@ -201,16 +317,23 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
             )}
           </div>
 
-          <aside className="lg:sticky lg:top-28 lg:self-start">
+          <aside
+            id="book-tour"
+            className="scroll-mt-24 lg:sticky lg:top-28 lg:self-start"
+          >
             <div className="rounded-3xl border border-border bg-card p-5 shadow-xl shadow-charcoal/8 sm:p-6">
               <div className="flex items-end justify-between gap-4 border-b border-border pb-5">
                 <div>
-                  <p className="text-xs text-muted-foreground">{t('common.from')}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('common.from')}
+                  </p>
                   <p className="font-display text-2xl font-bold text-foreground">
                     {formatPrice(tour.retailPrice, currency)}
                   </p>
                 </div>
-                <p className="text-xs text-muted-foreground">/ {t('common.person')}</p>
+                <p className="text-xs text-muted-foreground">
+                  / {t('common.person')}
+                </p>
               </div>
 
               <h2 className="mt-5 font-display text-xl font-bold text-foreground">
@@ -245,7 +368,9 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                     className="h-12 w-full rounded-xl border border-input bg-background px-4 text-sm font-medium outline-none focus:ring-2 focus:ring-ring/40"
                   >
                     {tour.availableTimes.map((item) => (
-                      <option key={item} value={item}>{item}</option>
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
                     ))}
                   </select>
                 </label>
@@ -266,16 +391,24 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                     onClick={() => setAdults((value) => Math.max(1, value - 1))}
                     disabled={adults <= 1}
                     className="grid size-9 place-items-center rounded-full border border-border text-foreground disabled:opacity-35"
-                    aria-label={language === 'ES' ? 'Quitar viajero' : 'Remove traveler'}
+                    aria-label={
+                      language === 'ES' ? 'Quitar viajero' : 'Remove traveler'
+                    }
                   >
                     <Minus className="size-4" aria-hidden="true" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => setAdults((value) => Math.min(tour.availableSpots, value + 1))}
-                    disabled={adults >= tour.availableSpots}
+                    onClick={() =>
+                      setAdults((value) =>
+                        Math.min(20, tour.availableSpots, value + 1),
+                      )
+                    }
+                    disabled={adults >= Math.min(20, tour.availableSpots)}
                     className="grid size-9 place-items-center rounded-full border border-border text-foreground disabled:opacity-35"
-                    aria-label={language === 'ES' ? 'Agregar viajero' : 'Add traveler'}
+                    aria-label={
+                      language === 'ES' ? 'Agregar viajero' : 'Add traveler'
+                    }
                   >
                     <Plus className="size-4" aria-hidden="true" />
                   </button>
@@ -304,7 +437,9 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
                         onChange={() => setPaymentType(option)}
                         className="sr-only"
                       />
-                      {option === 'deposit' ? t('detail.deposit') : t('detail.full')}
+                      {option === 'deposit'
+                        ? t('detail.deposit')
+                        : t('detail.full')}
                     </label>
                   ))}
                 </div>
@@ -324,14 +459,23 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
               <button
                 type="button"
                 onClick={addConfiguredTour}
-                disabled={!date || !time}
+                disabled={
+                  preview || !date || !time || tour.availableSpots < adults
+                }
                 className="mt-5 inline-flex h-13 w-full items-center justify-center gap-2 rounded-full bg-sunset-deep px-6 text-sm font-bold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
               >
                 <Plus className="size-4" aria-hidden="true" />
-                {t('detail.add')}
+                {preview
+                  ? language === 'ES'
+                    ? 'Vista previa de reservación'
+                    : 'Booking preview'
+                  : t('detail.add')}
               </button>
               <p className="mt-3 flex items-start justify-center gap-2 text-center text-xs leading-relaxed text-muted-foreground">
-                <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                <ShieldCheck
+                  className="mt-0.5 size-3.5 shrink-0"
+                  aria-hidden="true"
+                />
                 {t('detail.secure')}
               </p>
             </div>
@@ -345,7 +489,9 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
             <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {t('detail.related')}
             </h2>
-            <p className="mt-2 max-w-2xl text-muted-foreground">{t('detail.relatedBody')}</p>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              {t('detail.relatedBody')}
+            </p>
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
                 <TourCard key={item.id} tour={item} />
@@ -354,6 +500,17 @@ export function TourDetail({ tour, related }: { tour: Tour; related: Tour[] }) {
           </div>
         </section>
       )}
+      <div className="no-print fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t bg-white/95 px-5 py-3 backdrop-blur lg:hidden">
+        <div>
+          <span className="block text-xs text-muted-foreground">
+            {t('common.from')}
+          </span>
+          <strong>{formatPrice(tour.retailPrice, currency)}</strong>
+        </div>
+        <a href="#book-tour" className="action-primary">
+          {language === 'ES' ? 'Elegir fecha' : 'Choose a date'}
+        </a>
+      </div>
     </>
   )
 }

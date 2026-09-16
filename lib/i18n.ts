@@ -362,10 +362,10 @@ const tourES: Record<string, TourCopy> = {
     fullDescription: 'Escápate a Yelapa, un pueblo pesquero sin autos al que solo se llega en barco. Camina hacia una cascada en la selva, prueba el famoso pay local y disfruta el ritmo tranquilo del sur de la bahía.',
     duration: '7 horas', meetingPoint: 'Muelle de Los Muertos', includedItems: ['Transporte en barco', 'Guía', 'Tiempo en la playa', 'Caminata a la cascada'], excludedItems: ['Comida', 'Propinas'], requirements: ['Calzado cómodo para caminar'],
   },
-  'zipline-jungle': {
-    title: 'Aventura de tirolesa en la selva', shortDescription: 'Vuela sobre la selva en un circuito de tirolesas de alta velocidad.',
-    fullDescription: 'Vuela sobre las copas de los árboles en un circuito de tirolesas que cruza un cañón selvático. Combina el recorrido con rappel y un paseo en mula para una tarde llena de adrenalina.',
-    duration: '5 horas', meetingPoint: 'Inicio del sendero El Nogalito', includedItems: ['Equipo y arnés', 'Guías', 'Transporte desde el punto de encuentro', 'Snack'], excludedItems: ['Paquete de fotos', 'Propinas'], requirements: ['Peso máximo de 120 kg', 'Calzado cerrado'],
+  'san-sebastian-culture': {
+    title: 'Paseo cultural en San Sebastián', shortDescription: 'Recorre las calles y las historias de un pueblo entre montañas.',
+    fullDescription: 'Experiencia cultural de ejemplo para revisar el diseño. El itinerario, los precios y las condiciones finales se gestionarán desde el catálogo.',
+    duration: '5 horas', meetingPoint: 'Plaza principal de San Sebastián del Oeste', includedItems: ['Guía local', 'Recorrido a pie'], excludedItems: ['Alimentos', 'Propinas'], requirements: ['Calzado cómodo'],
   },
 }
 

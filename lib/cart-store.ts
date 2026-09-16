@@ -182,6 +182,7 @@ function createLineId(tourId: string) {
 }
 
 export function addItem(tour: Tour, input: AddItemInput = {}) {
+  if (tour.availableSpots < 1) return
   const item: CartItem = {
     lineId: createLineId(tour.id),
     tourId: tour.id,
@@ -190,7 +191,7 @@ export function addItem(tour: Tour, input: AddItemInput = {}) {
     providerName: tour.providerName,
     date: input.date ?? tour.availableDates[0] ?? '',
     time: input.time ?? tour.availableTimes[0] ?? '',
-    adults: clampAdults(input.adults ?? 2),
+    adults: clampAdults(Math.min(tour.availableSpots, input.adults ?? 2)),
     unitPrice: tour.retailPrice,
     unitDeposit: tour.deposit,
     paymentType: input.paymentType ?? 'deposit',

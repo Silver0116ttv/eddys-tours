@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useFavorites } from '@/components/travel/use-favorites'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Clock, Heart, MapPin, Plus } from 'lucide-react'
@@ -23,7 +23,8 @@ export function TourCard({
   const { addItem, currency } = useCart()
   const { language, t } = useI18n()
   const displayTour = localizeTour(tour, language)
-  const [wished, setWished] = useState(false)
+  const { ids, toggle } = useFavorites()
+  const wished = ids.includes(tour.id)
   const lowSpots = tour.availableSpots <= 10
 
   return (
@@ -51,15 +52,24 @@ export function TourCard({
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
           <span className="rounded-full bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-charcoal backdrop-blur-sm">
             {localizeCategory(tour.category, language)}
+            {tour.sample && (
+              <span className="ml-2 border-l border-charcoal/20 pl-2 font-normal normal-case">
+                {language === 'ES' ? 'Ejemplo' : 'Sample'}
+              </span>
+            )}
           </span>
           <button
             type="button"
-            onClick={() => setWished((w) => !w)}
-            aria-label={wished ? t('card.removeWishlist') : t('card.addWishlist')}
+            onClick={() => toggle(tour.id)}
+            aria-label={
+              wished ? t('card.removeWishlist') : t('card.addWishlist')
+            }
             aria-pressed={wished}
             className="grid size-8 place-items-center rounded-full bg-white/90 text-charcoal backdrop-blur-sm transition-colors hover:bg-white"
           >
-            <Heart className={cn('size-4', wished && 'fill-sunset text-sunset')} />
+            <Heart
+              className={cn('size-4', wished && 'fill-sunset text-sunset')}
+            />
           </button>
         </div>
         {lowSpots && (
@@ -72,12 +82,19 @@ export function TourCard({
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-1.5 flex items-center gap-1.5 text-sm">
           <Stars rating={tour.rating} size={13} />
-          <span className="font-semibold text-foreground">{tour.rating.toFixed(1)}</span>
-          <span className="text-muted-foreground">· {tour.reviewsCount} {t('common.reviews')}</span>
+          <span className="font-semibold text-foreground">
+            {tour.rating.toFixed(1)}
+          </span>
+          <span className="text-muted-foreground">
+            · {tour.reviewsCount} {t('common.reviews')}
+          </span>
         </div>
 
         <h3 className="font-display text-base font-semibold leading-snug text-foreground">
-          <Link href={`/tours/${tour.slug}`} className="transition-colors hover:text-ocean">
+          <Link
+            href={`/tours/${tour.slug}`}
+            className="transition-colors hover:text-ocean"
+          >
             {displayTour.title}
           </Link>
         </h3>
@@ -95,7 +112,9 @@ export function TourCard({
 
         <div className="mt-4 flex items-end justify-between border-t border-border pt-3">
           <div>
-            <span className="block text-[0.7rem] text-muted-foreground">{t('common.from')}</span>
+            <span className="block text-[0.7rem] text-muted-foreground">
+              {t('common.from')}
+            </span>
             <span className="font-display text-lg font-bold text-foreground">
               {formatPrice(tour.retailPrice, currency)}
             </span>
@@ -103,6 +122,7 @@ export function TourCard({
           <button
             type="button"
             onClick={() => addItem(tour)}
+            disabled={tour.availableSpots < 1}
             aria-label={t('card.addTrip', { title: displayTour.title })}
             className="inline-flex items-center gap-1.5 rounded-full bg-ocean px-4 py-2 text-sm font-semibold text-white transition-transform hover:scale-[1.04] active:scale-95"
           >

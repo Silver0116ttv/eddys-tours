@@ -1,8 +1,18 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Calendar, Clock, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useRef } from 'react'
+import {
+  Calendar,
+  Clock,
+  Minus,
+  Plus,
+  ShieldCheck,
+  ShoppingBag,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useCart, type PaymentType } from '@/components/cart/cart-context'
 import { formatPrice } from '@/lib/tours'
 import { Button } from '@/components/ui/button'
@@ -21,7 +31,6 @@ const FOCUSABLE =
  * exit animation failed to finish. While closed the panel is out of the tab
  * order and the accessibility tree, exactly as an unmounted dialog would be.
  */
-const TRANSITION_MS = 300
 
 function formatDate(iso: string, locale: string, fallback: string) {
   const [year, month, day] = iso.split('-').map(Number)
@@ -35,6 +44,7 @@ function formatDate(iso: string, locale: string, fallback: string) {
 }
 
 export function CartDrawer() {
+  const router = useRouter()
   const { language, locale, t } = useI18n()
   const {
     items,
@@ -49,14 +59,14 @@ export function CartDrawer() {
     currency,
     clear,
   } = useCart()
-  const [confirmed, setConfirmed] = useState(false)
+
   const panelRef = useRef<HTMLElement>(null)
   const returnFocusRef = useRef<HTMLElement | null>(null)
-  const itemTitle = (tourId: string, title: string) => localizeTourTitle(tourId, title, language)
+  const itemTitle = (tourId: string, title: string) =>
+    localizeTourTitle(tourId, title, language)
 
   const handleClose = useCallback(() => {
     closeCart()
-    setTimeout(() => setConfirmed(false), TRANSITION_MS)
   }, [closeCart])
 
   // Modal behaviour: lock the page behind the drawer, close on Escape, and keep
@@ -87,7 +97,11 @@ export function CartDrawer() {
       const last = focusable[focusable.length - 1]
       if (!first || !last) return
 
-      if (event.shiftKey && document.activeElement === first) {
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          document.activeElement === panelRef.current)
+      ) {
         event.preventDefault()
         last.focus()
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -149,29 +163,25 @@ export function CartDrawer() {
           </button>
         </header>
 
-        {confirmed ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
-            <div className="grid size-16 place-items-center rounded-full bg-tropical/15 text-tropical">
-              <ShieldCheck className="size-8" />
-            </div>
-            <h3 className="font-display text-2xl text-foreground">{t('cart.requested')}</h3>
-            <p className="leading-relaxed text-muted-foreground">
-              {t('cart.requestedBody')}
-            </p>
-            <Button onClick={handleClose} className="mt-2 rounded-full">
-              {t('cart.keepExploring')}
-            </Button>
-          </div>
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
             <div className="grid size-16 place-items-center rounded-full bg-secondary text-muted-foreground">
               <ShoppingBag className="size-7" />
             </div>
-            <h3 className="font-display text-xl text-foreground">{t('cart.empty')}</h3>
+            <h3 className="font-display text-xl text-foreground">
+              {t('cart.empty')}
+            </h3>
             <p className="leading-relaxed text-muted-foreground">
               {t('cart.emptyBody')}
             </p>
-            <Button onClick={handleClose} variant="secondary" className="mt-2 rounded-full">
+            <Button
+              onClick={() => {
+                handleClose()
+                router.push('/tours')
+              }}
+              variant="secondary"
+              className="mt-2 rounded-full"
+            >
               {t('cart.browse')}
             </Button>
           </div>
@@ -200,7 +210,9 @@ export function CartDrawer() {
                       <button
                         type="button"
                         onClick={() => removeItem(item.lineId)}
-                        aria-label={t('cart.remove', { title: itemTitle(item.tourId, item.title) })}
+                        aria-label={t('cart.remove', {
+                          title: itemTitle(item.tourId, item.title),
+                        })}
                         className="shrink-0 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="size-4" />
@@ -218,7 +230,9 @@ export function CartDrawer() {
                         <Clock className="size-3" />
                         {item.time
                           ? language === 'ES'
-                            ? item.time.replace('AM', 'a. m.').replace('PM', 'p. m.')
+                            ? item.time
+                                .replace('AM', 'a. m.')
+                                .replace('PM', 'p. m.')
                             : item.time
                           : t('time.confirm')}
                       </span>
@@ -228,8 +242,12 @@ export function CartDrawer() {
                       <div className="inline-flex items-center rounded-full border border-border">
                         <button
                           type="button"
-                          onClick={() => setAdults(item.lineId, item.adults - 1)}
-                          aria-label={t('cart.fewer', { title: itemTitle(item.tourId, item.title) })}
+                          onClick={() =>
+                            setAdults(item.lineId, item.adults - 1)
+                          }
+                          aria-label={t('cart.fewer', {
+                            title: itemTitle(item.tourId, item.title),
+                          })}
                           className="grid size-7 place-items-center rounded-full text-foreground hover:bg-muted disabled:opacity-40"
                           disabled={item.adults <= 1}
                         >
@@ -240,8 +258,12 @@ export function CartDrawer() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => setAdults(item.lineId, item.adults + 1)}
-                          aria-label={t('cart.more', { title: itemTitle(item.tourId, item.title) })}
+                          onClick={() =>
+                            setAdults(item.lineId, item.adults + 1)
+                          }
+                          aria-label={t('cart.more', {
+                            title: itemTitle(item.tourId, item.title),
+                          })}
                           className="grid size-7 place-items-center rounded-full text-foreground hover:bg-muted"
                         >
                           <Plus className="size-3.5" />
@@ -267,7 +289,9 @@ export function CartDrawer() {
                           )}
                         >
                           {type === 'deposit'
-                            ? t('cart.deposit', { price: formatPrice(item.depositTotal, currency) })
+                            ? t('cart.deposit', {
+                                price: formatPrice(item.depositTotal, currency),
+                              })
                             : t('cart.full')}
                         </button>
                       ))}
@@ -300,21 +324,30 @@ export function CartDrawer() {
                   </div>
                 )}
                 <div className="flex items-center justify-between border-t border-border pt-2 text-base">
-                  <dt className="font-semibold text-foreground">{t('cart.today')}</dt>
-                  <dd className="font-bold text-ocean">{formatPrice(payToday, currency)}</dd>
+                  <dt className="font-semibold text-foreground">
+                    {t('cart.today')}
+                  </dt>
+                  <dd className="font-bold text-ocean">
+                    {formatPrice(payToday, currency)}
+                  </dd>
                 </div>
               </dl>
 
               <Button
-                onClick={() => setConfirmed(true)}
+                onClick={() => {
+                  handleClose()
+                  router.push('/trip')
+                }}
                 size="lg"
                 className="mt-4 w-full rounded-full text-base"
               >
-                {t('cart.confirm')}
+                {language === 'ES' ? 'Revisar mi viaje' : 'Review my trip'}
               </Button>
               <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
                 <ShieldCheck className="size-3.5 text-tropical" />
-                {t('cart.secure')}
+                {language === 'ES'
+                  ? 'Revisa los detalles antes de solicitar tu reserva'
+                  : 'Review the details before requesting your booking'}
               </p>
             </footer>
           </>

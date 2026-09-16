@@ -1,17 +1,19 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useCart } from '@/components/cart/cart-context'
 import { localeFor, translate } from '@/lib/i18n'
 
 export function LanguageSync() {
   const { language } = useCart()
+  const pathname = usePathname()
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key)
 
   useEffect(() => {
-    const spanish = language === 'ES'
+    const spanish = language === 'ES' || pathname.startsWith('/admin')
     document.documentElement.lang = spanish ? 'es-MX' : 'en'
-  }, [language])
+  }, [language, pathname])
 
   return (
     <a

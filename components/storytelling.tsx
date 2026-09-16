@@ -34,7 +34,7 @@ const chapters = [
     bodyES: 'Sube hacia el clima fresco de San Sebastián del Oeste, un pueblo minero colonial detenido en el tiempo, donde el café crece a pocos pasos de donde se sirve.',
   },
   {
-    image: "/images/story-sunset.webp",
+    image: "/images/story-sunset-v2.webp",
     kicker: "The Sunset",
     title: "The show that ends every day",
     body: "There's a reason people gather on the Malecón each evening. When the sun drops into the Pacific, the whole sky catches fire — and the best seats are out on the water.",
@@ -56,7 +56,11 @@ function Chapter({
     target: ref,
     offset: ["start end", "end start"],
   })
-  const y = useTransform(scrollYProgress, [0, 1], ["-12%", "12%"])
+  // Keep a generous image bleed above and below the card. The previous
+  // 0-to-124% layer moved as much as 12% from the top edge, exposing the white
+  // card background near the end of the scroll. A centered bleed plus a
+  // gentler offset preserves the parallax without ever uncovering the frame.
+  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"])
   const reversed = index % 2 === 1
 
   return (
@@ -69,7 +73,7 @@ function Chapter({
           reversed ? "md:order-2" : ""
         }`}
       >
-        <motion.div style={{ y }} className="absolute inset-0 h-[124%]">
+        <motion.div style={{ y }} className="absolute inset-x-0 -inset-y-[12%]">
           <Image
             src={chapter.image || "/placeholder.svg"}
             alt={chapter.title}

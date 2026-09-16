@@ -31,6 +31,7 @@ export default async function ToursPage({
       <main id="main">
         <CatalogHero />
         <TourCatalog
+          key={JSON.stringify(filters)}
           tours={tours}
           initialQuery={first(filters.q)}
           initialCategory={first(filters.category)}

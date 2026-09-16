@@ -28,6 +28,45 @@ Open `http://localhost:3000`.
 Copy `.env.example` to `.env.local`. The storefront continues to use the bundled catalog
 until both public Supabase values are present.
 
+## Frontend terminado y demostración
+
+El catálogo de muestra contiene **ocho tours, uno por categoría**. La fuente es
+`lib/data/fallback-catalog.ts`; no es inventario real. Las vistas públicas incluyen
+catálogo con filtros, detalle y galería, favoritos, itinerario de varios tours,
+solicitud en tres pasos, consulta de solicitudes, destinos, categorías, información,
+ayuda, contacto y políticas. Incluyen español e inglés y precios en MXN y USD.
+
+El acceso del personal está en `/admin/login`. Las rutas `/admin` requieren una
+sesión con rol administrador. `/admin/demo` es un espacio separado de datos
+ficticios para probar resumen, tours, reservaciones, calendario, cobros, pagos a
+operadores, contactos, operadores, reseñas y configuración sin configurar Supabase.
+El editor de tours incluye contenido, precios, fotos de muestra, salidas y vista previa.
+
+En demostración, solicitudes, mensajes y cambios administrativos se guardan en el
+navegador. Una solicitud de `/checkout` aparece en reservaciones del panel de
+demostración del mismo navegador y puede consultarse en `/my-bookings` con su
+referencia y correo. No se envían correos ni se reserva inventario ni se hacen cargos.
+La consulta local de solicitudes sirve para probar la interfaz, no como autenticación.
+
+La siguiente etapa es la integración de datos y servicios reales:
+
+- Sustituir `lib/demo-requests.ts` por creación y consulta autorizada de solicitudes,
+  contactos y reservas en servidor, con precios y disponibilidad validados allí.
+- Conectar las operaciones completas de `components/admin/workspace.tsx` y
+  `tour-editor.tsx` con el catálogo, almacenamiento de imágenes, operadores, pagos
+  y configuración persistente. Las operaciones reales existentes están limitadas
+  a los endpoints documentados abajo; el resto está disponible en demostración.
+- Configurar Supabase Auth y recuperación de contraseña, y verificar los roles y
+  permisos con cuentas reales. Conectar proveedores de cobro y correo cuando se
+  active la operación comercial.
+- Reemplazar los ejemplos y revisar textos comerciales, precios y disponibilidad.
+  El seed histórico de Supabase aún no refleja la selección nueva de un tour por
+  categoría; revisarlo antes de cargar la base de datos.
+
+Con la aplicación iniciada, `pnpm check:frontend` comprueba rutas públicas,
+categorías y protección del área administrativa. Puede usarse otro servidor con
+la variable `FRONTEND_TEST_URL`. Los controles de código son `pnpm check`.
+
 ## Supabase backend
 
 The versioned backend is in `supabase/` and includes:
@@ -104,7 +143,7 @@ where id = (select id from auth.users where email = 'admin@example.com');
 Subsequent role changes should call the protected `set_profile_role` database function
 from an authenticated administrator session.
 
-The seed file contains the current eight-tour demo catalog and sample departures. Apply it
+The seed file contains an earlier eight-tour demo catalog and sample departures. Apply it
 only after reviewing the dates and replacing them with real operator availability. Add the
 two public Supabase variables to Vercel after the hosted database is ready. The service-role
 key must remain server-only and is not required for public catalog reads. Production keeps

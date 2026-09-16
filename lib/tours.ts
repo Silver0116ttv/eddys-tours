@@ -68,6 +68,8 @@ export function formatPrice(value: Price, currency: Currency): string {
 }
 
 export interface Tour {
+  /** Temporary frontend example; replace with catalog data at integration time. */
+  sample?: boolean
   id: string
   slug: string
   title: string
@@ -105,7 +107,7 @@ export type TourLocalizedCopy = Pick<
   | 'includedItems'
   | 'excludedItems'
   | 'requirements'
->
+> & { duration?: string }
 
 export interface CategoryItem {
   name: TourCategory
@@ -115,14 +117,14 @@ export interface CategoryItem {
 }
 
 export const categories: CategoryItem[] = [
-  { name: 'Adventure', image: '/images/cat-adventure.webp', count: 18, size: 'large' },
-  { name: 'Water', image: '/images/cat-water.webp', count: 24, size: 'normal' },
-  { name: 'Boats', image: '/images/cat-boats.webp', count: 15, size: 'tall' },
-  { name: 'Nature', image: '/images/cat-nature.webp', count: 12, size: 'normal' },
-  { name: 'Family', image: '/images/cat-family.webp', count: 20, size: 'wide' },
-  { name: 'Couples', image: '/images/cat-couples.webp', count: 9, size: 'normal' },
-  { name: 'Wildlife', image: '/images/cat-wildlife.webp', count: 7, size: 'normal' },
-  { name: 'Culture', image: '/images/cat-culture.webp', count: 11, size: 'normal' },
+  { name: 'Adventure', image: '/images/cat-adventure.webp', count: 1, size: 'large' },
+  { name: 'Water', image: '/images/cat-water.webp', count: 1, size: 'normal' },
+  { name: 'Boats', image: '/images/cat-boats.webp', count: 1, size: 'tall' },
+  { name: 'Nature', image: '/images/cat-nature.webp', count: 1, size: 'normal' },
+  { name: 'Family', image: '/images/cat-family.webp', count: 1, size: 'wide' },
+  { name: 'Couples', image: '/images/cat-couples.webp', count: 1, size: 'normal' },
+  { name: 'Wildlife', image: '/images/cat-wildlife.webp', count: 1, size: 'normal' },
+  { name: 'Culture', image: '/images/cat-culture.webp', count: 1, size: 'normal' },
 ]
 
 export interface Destination {

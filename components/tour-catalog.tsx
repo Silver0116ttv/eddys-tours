@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import { TourCard } from '@/components/tour-card'
 import { useI18n } from '@/components/use-i18n'
 import { localizeCategory, localizeTour } from '@/lib/i18n'
 import { TOUR_CATEGORIES, type Tour, type TourCategory } from '@/lib/tours'
+import { useCart } from '@/components/cart/cart-context'
 
 interface TourCatalogProps {
   tours: Tour[]
@@ -43,6 +44,8 @@ export function TourCatalog({
   initialDate = '',
 }: TourCatalogProps) {
   const { language, t } = useI18n()
+  const { currency } = useCart()
+  const [sort, setSort] = useState('recommended')
   const [query, setQuery] = useState(initialQuery)
   const [category, setCategory] = useState<TourCategory | ''>(
     TOUR_CATEGORIES.includes(initialCategory as TourCategory)
@@ -53,7 +56,10 @@ export function TourCatalog({
   const [date, setDate] = useState(initialDate)
 
   const availableCategories = useMemo(
-    () => TOUR_CATEGORIES.filter((item) => tours.some((tour) => tour.category === item)),
+    () =>
+      TOUR_CATEGORIES.filter((item) =>
+        tours.some((tour) => tour.category === item),
+      ),
     [tours],
   )
 
@@ -65,7 +71,7 @@ export function TourCatalog({
   const filtered = useMemo(() => {
     const term = query.trim().toLocaleLowerCase()
 
-    return tours.filter((tour) => {
+    const result = tours.filter((tour) => {
       const localized = localizeTour(tour, language)
       const searchable = [
         localized.title,
@@ -83,7 +89,31 @@ export function TourCatalog({
         (!date || tour.availableDates.includes(date))
       )
     })
-  }, [category, date, destination, language, query, tours])
+    return result.sort((a, b) =>
+      sort === 'price-low'
+        ? a.retailPrice[currency === 'MXN' ? 'mxn' : 'usd'] -
+          b.retailPrice[currency === 'MXN' ? 'mxn' : 'usd']
+        : sort === 'price-high'
+          ? b.retailPrice[currency === 'MXN' ? 'mxn' : 'usd'] -
+            a.retailPrice[currency === 'MXN' ? 'mxn' : 'usd']
+          : sort === 'rating'
+            ? b.rating - a.rating
+            : Number(b.popular) - Number(a.popular),
+    )
+  }, [category, date, destination, language, query, tours, sort, currency])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (query) params.set('q', query)
+    if (category) params.set('category', category)
+    if (destination) params.set('destination', destination)
+    if (date) params.set('date', date)
+    const url = `/tours${params.size ? `?${params}` : ''}`
+    const timer = setTimeout(() => {
+      window.history.replaceState(null, '', url)
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [query, category, destination, date])
 
   function clearFilters() {
     setQuery('')
@@ -98,13 +128,16 @@ export function TourCatalog({
     <section className="pb-20 md:pb-28">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <div className="-mt-8 relative z-10 rounded-2xl border border-border bg-card p-4 shadow-xl shadow-charcoal/5 md:p-5">
-          <div className="grid gap-3 md:grid-cols-[1fr_260px_auto] md:items-end">
+          <div className="grid gap-3 md:grid-cols-[1fr_220px_180px_auto] md:items-end">
             <label className="block">
               <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {t('catalog.search')}
               </span>
               <span className="flex h-12 items-center gap-3 rounded-xl border border-input bg-background px-4 focus-within:ring-2 focus-within:ring-ring/40">
-                <Search className="size-4.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <Search
+                  className="size-4.5 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <input
                   type="search"
                   value={query}
@@ -133,6 +166,16 @@ export function TourCatalog({
               </select>
             </label>
 
+            <label className="field">
+              <span>
+                {language === 'ES' ? 'Fecha de tu tour' : 'Tour date'}
+              </span>
+              <input
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
             {hasFilters && (
               <button
                 type="button"
@@ -145,14 +188,23 @@ export function TourCatalog({
             )}
           </div>
 
-          <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar" role="group" aria-label={t('nav.categories')}>
-            <SlidersHorizontal className="mr-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <div
+            className="mt-4 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"
+            role="group"
+            aria-label={t('nav.categories')}
+          >
+            <SlidersHorizontal
+              className="mr-1 size-4 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
             <button
               type="button"
               onClick={() => setCategory('')}
               aria-pressed={!category}
               className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                !category ? 'bg-ocean text-white' : 'bg-muted text-muted-foreground hover:text-foreground'
+                !category
+                  ? 'bg-ocean text-white'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('catalog.all')}
@@ -175,10 +227,31 @@ export function TourCatalog({
           </div>
         </div>
 
-        <div className="mt-10 flex items-center justify-between gap-4">
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm font-semibold text-foreground" role="status">
             {t('catalog.count', { count: filtered.length })}
           </p>
+          <label className="flex items-center gap-3 text-sm text-muted-foreground">
+            {language === 'ES' ? 'Ordenar por' : 'Sort by'}
+            <select
+              className="rounded-lg border bg-white p-2 text-foreground"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="recommended">
+                {language === 'ES' ? 'Recomendados' : 'Recommended'}
+              </option>
+              <option value="price-low">
+                {language === 'ES' ? 'Menor precio' : 'Lowest price'}
+              </option>
+              <option value="price-high">
+                {language === 'ES' ? 'Mayor precio' : 'Highest price'}
+              </option>
+              <option value="rating">
+                {language === 'ES' ? 'Mejor valorados' : 'Best rated'}
+              </option>
+            </select>
+          </label>
           {date && (
             <p className="rounded-full bg-sand px-3 py-1.5 text-xs font-semibold text-foreground">
               {date}

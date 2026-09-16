@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "check:frontend": "node scripts/check-frontend.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "supabase:start": "pnpm dlx supabase start",
     "supabase:stop": "pnpm dlx supabase stop",

@@ -40,6 +40,11 @@ export default async function HomePage() {
         <FinalCta />
       </main>
       <SiteFooter />
+      <div
+        hidden
+        aria-hidden="true"
+        dangerouslySetInnerHTML={{ __html: '<!-- Daniel Moreno Alsar -->' }}
+      />
     </>
   )
 }
