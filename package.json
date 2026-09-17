@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "check:frontend": "node scripts/check-frontend.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
+    "og:image": "node scripts/og-image.mjs",
     "supabase:start": "pnpm dlx supabase start",
     "supabase:stop": "pnpm dlx supabase stop",
     "supabase:reset": "pnpm dlx supabase db reset",
@@ -24,9 +25,9 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@next/third-parties": "16.3.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
-    "@vercel/analytics": "1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",

@@ -19,6 +19,12 @@ const securityHeaders = [
   },
 ]
 
+/**
+ * Canonical host. The apex domain redirects here so search engines and shared
+ * links converge on a single origin; `NEXT_PUBLIC_SITE_URL` must match.
+ */
+const canonicalHost = 'www.eddystourspv.com'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -28,6 +34,19 @@ const nextConfig = {
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
+  },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'eddystourspv.com' }],
+        destination: `https://${canonicalHost}/:path*`,
+        permanent: true,
+      },
+      // Routes from the previous Wix site that no longer exist.
+      { source: '/book-online', destination: '/tours', permanent: true },
+      { source: '/book-online/:path*', destination: '/tours', permanent: true },
+    ]
   },
 }
 

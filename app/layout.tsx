@@ -1,4 +1,4 @@
-import { Analytics } from '@vercel/analytics/next'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Inter } from 'next/font/google'
 import { CartProvider } from '@/components/cart/cart-context'
@@ -63,6 +63,10 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
+// Measurement ID from Google Analytics 4 (`G-…`). Unset in development and
+// in any environment that should not report visits.
+const gaId = process.env.NEXT_PUBLIC_GA_ID
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -79,7 +83,7 @@ export default function RootLayout({
           <LanguageSync />
           {children}
         </CartProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   )

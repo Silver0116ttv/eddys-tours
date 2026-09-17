@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail, MessageCircle, MapPin } from 'lucide-react'
+import { Mail, MessageCircle, MapPin, Phone } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { useI18n } from '@/components/use-i18n'
+import { mailtoUrl, siteConfig, whatsappUrl } from '@/lib/site'
 
 type FooterLink = readonly [
   englishLabel: string,
@@ -57,17 +58,9 @@ const columns: FooterColumn[] = [
     title: 'footer.company' as const,
     links: [
       ["About Eddy's", "Conoce a Eddy's", '/about'],
-      [
-        'Become a Partner',
-        'Sé nuestro socio',
-        'mailto:hola@eddystours.mx?subject=Partner%20with%20Eddy%27s%20Tours',
-      ],
-      [
-        'Careers',
-        'Empleo',
-        'mailto:hola@eddystours.mx?subject=Careers%20at%20Eddy%27s%20Tours',
-      ],
-      ['Press', 'Prensa', 'mailto:hola@eddystours.mx?subject=Press%20inquiry'],
+      ['Become a Partner', 'Sé nuestro socio', mailtoUrl("Partner with Eddy's Tours")],
+      ['Careers', 'Empleo', mailtoUrl("Careers at Eddy's Tours")],
+      ['Press', 'Prensa', mailtoUrl('Press inquiry')],
     ],
   },
   {
@@ -85,9 +78,29 @@ const columns: FooterColumn[] = [
   },
 ]
 
+// lucide-react no longer ships brand marks, so the Facebook glyph lives here.
+function Facebook({ className, ...props }: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      {...props}
+    >
+      <path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.5-1.5h1.4V5c-.3 0-1.1-.1-2.1-.1-2.1 0-3.6 1.3-3.6 3.7V11H8.2v3h2.5v7h2.8z" />
+    </svg>
+  )
+}
+
+const whatsappLink = whatsappUrl('Hola, quiero información sobre sus tours.')
+
 const socialLinks = [
   { label: 'Contact', href: '/contact', icon: MessageCircle },
-  { label: 'Email', href: 'mailto:hola@eddystours.mx', icon: Mail },
+  { label: 'Email', href: mailtoUrl(), icon: Mail },
+  ...(whatsappLink ? [{ label: 'WhatsApp', href: whatsappLink, icon: Phone }] : []),
+  ...(siteConfig.facebook
+    ? [{ label: 'Facebook', href: siteConfig.facebook, icon: Facebook }]
+    : []),
 ]
 
 export function SiteFooter() {
@@ -110,6 +123,9 @@ export function SiteFooter() {
                   <a
                     href={social.href}
                     className="flex size-9 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                    {...(social.href.startsWith('http')
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
                   >
                     <social.icon className="size-4" aria-hidden="true" />
                     <span className="sr-only">{social.label}</span>
@@ -156,12 +172,22 @@ export function SiteFooter() {
               Puerto Vallarta, México
             </span>
             <a
-              href="mailto:hola@eddystours.mx"
+              href={mailtoUrl()}
               className="flex items-center gap-2 hover:text-foreground"
             >
               <Mail className="size-4" aria-hidden="true" />
-              hola@eddystours.mx
+              {siteConfig.email}
             </a>
+            {siteConfig.phone && (
+              <a
+                href={whatsappLink ?? `tel:${siteConfig.phone.replace(/\s+/g, '')}`}
+                className="flex items-center gap-2 hover:text-foreground"
+                {...(whatsappLink ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <Phone className="size-4" aria-hidden="true" />
+                {siteConfig.phone}
+              </a>
+            )}
           </div>
           <div className="flex flex-wrap gap-4">
             <Link href="/privacy" className="hover:text-foreground">

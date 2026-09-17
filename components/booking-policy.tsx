@@ -2,6 +2,7 @@
 
 import { CalendarCheck, LifeBuoy, ShieldCheck } from 'lucide-react'
 import { useI18n } from '@/components/use-i18n'
+import { mailtoUrl } from '@/lib/site'
 
 const copy = {
   EN: {
@@ -77,7 +78,7 @@ export function BookingPolicy() {
             <p className="mt-2 max-w-xl leading-relaxed text-muted-foreground">{text.helpBody}</p>
           </div>
           <a
-            href="mailto:hola@eddystours.mx?subject=Booking%20help"
+            href={mailtoUrl('Booking help')}
             className="mt-6 inline-flex shrink-0 rounded-full bg-sunset-deep px-6 py-3 text-sm font-semibold text-white md:mt-0"
           >
             {text.helpAction}

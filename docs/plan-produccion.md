@@ -4,6 +4,9 @@ Estado de partida: frontend terminado (lint, typecheck, build y `check:frontend`
 esquema Supabase versionado con RLS y funciones transaccionales, panel administrativo completo
 en modo demo. Lo que sigue es integración y operación real, no diseño.
 
+> Hosting: el despliegue se hace en Hostinger (Node.js Web Apps), no en Vercel. Donde este
+> documento diga "Vercel" aplica lo descrito en `despliegue-hostinger.md`.
+
 Este documento fija **decisiones**, **principios**, **fases con criterio de salida**, y los
 **cambios concretos** (migraciones, endpoints, variables) que cada fase requiere. Las
 estimaciones son orientativas para una persona desarrolladora a tiempo completo.

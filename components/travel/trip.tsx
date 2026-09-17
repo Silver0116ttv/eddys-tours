@@ -11,6 +11,7 @@ import {
   CircleCheck,
   Mail,
   MapPin,
+  MessageCircle,
   Minus,
   Plus,
   Printer,
@@ -24,6 +25,7 @@ import { localizeTourTitle } from '@/lib/i18n'
 import { formatPrice, type Tour } from '@/lib/tours'
 import { PageIntro } from './page-shell'
 import { saveDemoRequest, type DemoRequest } from '@/lib/demo-requests'
+import { mailtoUrl, siteConfig, whatsappUrl } from '@/lib/site'
 
 export function Trip({
   tours,
@@ -64,8 +66,29 @@ export function Trip({
       item.adults > tour.availableSpots
     )
   })
-  const mail = `mailto:hola@eddystours.mx?subject=${encodeURIComponent(es ? 'Solicitud de itinerario' : 'Trip inquiry')}&body=${encodeURIComponent(`${details.name}\n${details.email}\n${details.phone}\n\n${items.map((i) => `${localizeTourTitle(i.tourId, i.title, language)} | ${i.date} ${i.time} | ${i.adults} ${es ? 'viajeros' : 'travelers'} | ${formatPrice(i.total, currency)} | ${i.paymentType}`).join('\n')}\n\nTotal: ${formatPrice(tripTotal, currency)}\n${es ? 'Anticipo / pago solicitado' : 'Requested initial payment'}: ${formatPrice(payToday, currency)}\n${details.notes}`)}`
+  const summary = [
+    ...(request ? [`${es ? 'Referencia' : 'Reference'}: ${request.reference}`] : []),
+    details.name,
+    details.email,
+    details.phone,
+    '',
+    ...items.map(
+      (i) =>
+        `${localizeTourTitle(i.tourId, i.title, language)} | ${i.date} ${i.time} | ${i.adults} ${es ? 'viajeros' : 'travelers'} | ${formatPrice(i.total, currency)} | ${i.paymentType}`,
+    ),
+    '',
+    `Total: ${formatPrice(tripTotal, currency)}`,
+    `${es ? 'Anticipo / pago solicitado' : 'Requested initial payment'}: ${formatPrice(payToday, currency)}`,
+    ...(details.notes ? ['', details.notes] : []),
+  ].join('\n')
+  const mail = mailtoUrl(es ? 'Solicitud de itinerario' : 'Trip inquiry', summary)
+  const whatsapp = whatsappUrl(
+    `${es ? 'Hola, quiero solicitar este itinerario' : 'Hi, I would like to request this itinerary'}:\n\n${summary}`,
+  )
   const label = (en: string, spanish: string) => (es ? spanish : en)
+  const channels = whatsapp
+    ? label('WhatsApp or email', 'WhatsApp o correo')
+    : label('email', 'correo')
 
   if (!items.length)
     return (
@@ -285,8 +308,8 @@ export function Trip({
                 <h2 className="mt-6 text-3xl font-bold">
                   {request
                     ? label(
-                        'Sample request saved.',
-                        'Solicitud de ejemplo registrada.',
+                        'Request saved. Now send it to our team.',
+                        'Solicitud guardada. Ahora envíala a nuestro equipo.',
                       )
                     : label(
                         'Your itinerary is ready to send.',
@@ -296,14 +319,34 @@ export function Trip({
                 <p className="mt-4 leading-7 text-muted-foreground">
                   {request
                     ? label(
-                        'Your sample itinerary is saved in this browser and appears in the admin demo. No booking, payment or email has been sent.',
-                        'Tu itinerario de ejemplo quedó guardado en este navegador y aparece en el panel de demostración. No se ha realizado una reserva, un cobro ni un envío de correo real.',
+                        `Your request is saved in this browser under the reference below. Send it by ${channels} and we will confirm availability and final prices by reply. No booking is confirmed and no payment has been made yet.`,
+                        `Tu solicitud quedó guardada en este navegador con la referencia de abajo. Envíala por ${channels} y te confirmamos disponibilidad y precios finales por ese medio. Aún no hay una reserva confirmada ni se ha realizado ningún cobro.`,
                       )
                     : label(
-                        'Open your email app, review the message and send it to our team. Your booking is not confirmed and no payment has been made.',
-                        'Abre tu aplicación de correo, revisa el mensaje y envíalo a nuestro equipo. Tu reserva aún no está confirmada y no se ha realizado ningún cobro.',
+                        `Send it by ${channels} and we will confirm availability and final prices by reply. Your booking is not confirmed and no payment has been made.`,
+                        `Envíala por ${channels} y te confirmamos disponibilidad y precios finales por ese medio. Tu reserva aún no está confirmada y no se ha realizado ningún cobro.`,
                       )}
                 </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  {whatsapp && (
+                    <a
+                      className="action-primary"
+                      href={whatsapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="size-4" />
+                      {label('Send by WhatsApp', 'Enviar por WhatsApp')}
+                    </a>
+                  )}
+                  <a
+                    className={whatsapp ? 'action-secondary' : 'action-primary'}
+                    href={mail}
+                  >
+                    <Mail className="size-4" />
+                    {label('Send by email', 'Enviar por correo')}
+                  </a>
+                </div>
                 {request && (
                   <div className="mt-6 rounded-xl bg-[#edf4f5] p-5">
                     <p className="text-xs text-muted-foreground">
@@ -312,42 +355,34 @@ export function Trip({
                     <p className="mt-2 text-xl font-bold tracking-wide text-ocean">
                       {request.reference}
                     </p>
-                    <Link href="/my-bookings" className="action-primary mt-4">
+                    <Link href="/my-bookings" className="action-secondary mt-4">
                       {label('Look up my request', 'Consultar mi solicitud')}
                     </Link>
                   </div>
                 )}
-                {!request && (
-                  <a className="action-primary mt-7" href={mail}>
-                    <Mail className="size-4" />
-                    {label('Open email to send', 'Abrir correo para enviar')}
-                  </a>
-                )}
-                {!request && (
-                  <ol className="mt-8 space-y-5 border-t pt-7">
-                    {[
-                      label(
-                        'Send your itinerary to hola@eddystours.mx.',
-                        'Envía tu itinerario a hola@eddystours.mx.',
-                      ),
-                      label(
-                        'Our team confirms availability and final prices.',
-                        'Nuestro equipo confirma disponibilidad y precios finales.',
-                      ),
-                      label(
-                        'Receive payment instructions and your meeting details.',
-                        'Recibe las instrucciones de pago y los detalles de tu punto de encuentro.',
-                      ),
-                    ].map((s, i) => (
-                      <li key={s} className="flex gap-4 text-sm leading-6">
-                        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-ocean">
-                          {i + 1}
-                        </span>
-                        {s}
-                      </li>
-                    ))}
-                  </ol>
-                )}
+                <ol className="mt-8 space-y-5 border-t pt-7">
+                  {[
+                    label(
+                      `Send your itinerary by ${channels} (${siteConfig.email}).`,
+                      `Envía tu itinerario por ${channels} (${siteConfig.email}).`,
+                    ),
+                    label(
+                      'Our team confirms availability and final prices.',
+                      'Nuestro equipo confirma disponibilidad y precios finales.',
+                    ),
+                    label(
+                      'Receive payment instructions and your meeting details.',
+                      'Recibe las instrucciones de pago y los detalles de tu punto de encuentro.',
+                    ),
+                  ].map((s, i) => (
+                    <li key={s} className="flex gap-4 text-sm leading-6">
+                      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-ocean">
+                        {i + 1}
+                      </span>
+                      {s}
+                    </li>
+                  ))}
+                </ol>
                 <section className="mt-8 border-t pt-6">
                   <h3 className="font-bold">
                     {label('Your itinerary', 'Tu itinerario')}
@@ -634,12 +669,7 @@ export function Trip({
                         window.scrollTo({ top: 200, behavior: 'smooth' })
                       }}
                     >
-                      {demo
-                        ? label(
-                            'Save sample request',
-                            'Guardar solicitud de ejemplo',
-                          )
-                        : label('Prepare request', 'Preparar solicitud')}
+                      {label('Prepare request', 'Preparar solicitud')}
                       <ArrowRight className="size-4" />
                     </button>
                   </div>

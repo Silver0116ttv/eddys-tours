@@ -9,6 +9,7 @@ import {
   Compass,
   Mail,
   MapPin,
+  Phone,
   Search,
   ShieldCheck,
   Users,
@@ -19,6 +20,7 @@ import { localizeCategory } from '@/lib/i18n'
 import { PageIntro } from './page-shell'
 import { saveDemoContact } from '@/lib/demo-requests'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
+import { mailtoUrl, siteConfig, whatsappUrl } from '@/lib/site'
 
 export type InformationKind =
   'destinations' | 'categories' | 'about' | 'help' | 'contact' | 'privacy'
@@ -377,15 +379,39 @@ export function Information({ kind }: { kind: InformationKind }) {
                   ? 'Viajes en grupo, celebraciones o una duda sobre tu tour. Cuéntanos los detalles para orientarte mejor.'
                   : 'Group trips, celebrations or a question about your tour. Share a few details so we can help.'}
               </p>
-              <a className="mt-8 flex gap-4" href="mailto:hola@eddystours.mx">
+              <a className="mt-8 flex gap-4" href={mailtoUrl()}>
                 <Mail className="text-ocean" />
                 <span>
                   <strong className="block">Email</strong>
                   <span className="text-muted-foreground">
-                    hola@eddystours.mx
+                    {siteConfig.email}
                   </span>
                 </span>
               </a>
+              {siteConfig.phone && (
+                <a
+                  className="mt-6 flex gap-4"
+                  href={
+                    whatsappUrl(
+                      es
+                        ? 'Hola, quiero información sobre sus tours.'
+                        : 'Hi, I would like information about your tours.',
+                    ) ?? `tel:${siteConfig.phone.replace(/\s+/g, '')}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Phone className="text-ocean" />
+                  <span>
+                    <strong className="block">
+                      {es ? 'WhatsApp / Teléfono' : 'WhatsApp / Phone'}
+                    </strong>
+                    <span className="text-muted-foreground">
+                      {siteConfig.phone}
+                    </span>
+                  </span>
+                </a>
+              )}
               <div className="mt-6 flex gap-4">
                 <MapPin className="text-ocean" />
                 <span>
@@ -428,7 +454,10 @@ export function Information({ kind }: { kind: InformationKind }) {
                   }
                 }
                 setEmailHref(
-                  `mailto:hola@eddystours.mx?subject=${encodeURIComponent(String(data.get('subject')))}&body=${encodeURIComponent(`${data.get('name')} · ${data.get('email')}\n\n${data.get('message')}`)}`,
+                  mailtoUrl(
+                    String(data.get('subject')),
+                    `${data.get('name')} · ${data.get('email')}\n\n${data.get('message')}`,
+                  ),
                 )
                 setPrepared(true)
               }}
@@ -586,11 +615,11 @@ export function Information({ kind }: { kind: InformationKind }) {
                   ],
                   [
                     'Servicios del sitio',
-                    'El catálogo y el acceso del personal pueden utilizar Supabase. En producción, el sitio incluye Vercel Analytics. Los enlaces externos y tu proveedor de correo tienen sus propias condiciones.',
+                    'El catálogo y el acceso del personal pueden utilizar Supabase. En producción, el sitio incluye Google Analytics para medir visitas de forma agregada. Los enlaces externos y tu proveedor de correo tienen sus propias condiciones.',
                   ],
                   [
                     'Preguntas sobre tus datos',
-                    'Para consultas sobre información que hayas compartido con el equipo, escribe a hola@eddystours.mx. Esta página describe el funcionamiento actual del sitio.',
+                    `Para consultas sobre información que hayas compartido con el equipo, escribe a ${siteConfig.email}. Esta página describe el funcionamiento actual del sitio.`,
                   ],
                 ]
               : [
@@ -604,11 +633,11 @@ export function Information({ kind }: { kind: InformationKind }) {
                   ],
                   [
                     'Site services',
-                    'The catalog and staff access may use Supabase. In production, the site includes Vercel Analytics. External links and your email provider have their own terms.',
+                    'The catalog and staff access may use Supabase. In production, the site includes Google Analytics to measure visits in aggregate. External links and your email provider have their own terms.',
                   ],
                   [
                     'Questions about your information',
-                    'For questions about information shared with the team, email hola@eddystours.mx. This page describes how the site currently works.',
+                    `For questions about information shared with the team, email ${siteConfig.email}. This page describes how the site currently works.`,
                   ],
                 ]
             ).map(([title, body]) => (

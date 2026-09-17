@@ -44,6 +44,7 @@ import { createClient } from '@/lib/supabase/client'
 import { TOUR_CATEGORIES } from '@/lib/tours'
 import { localizeCategory } from '@/lib/i18n'
 import { toVallartaDate } from '@/lib/time'
+import { siteConfig } from '@/lib/site'
 import { AdminModal } from './modal'
 import { TourEditor } from './tour-editor'
 import { demoRequestBookings, readDemoContacts } from '@/lib/demo-requests'
@@ -175,7 +176,7 @@ export function AdminWorkspace({
   )
   const [settings, setSettings] = useState({
     company: 'Eddy’s Tours',
-    email: 'hola@eddystours.mx',
+    email: siteConfig.email,
     location: 'Puerto Vallarta, Jalisco',
     currency: 'MXN',
     notify: true,

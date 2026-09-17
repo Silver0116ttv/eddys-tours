@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { Logo } from '@/components/logo'
+import { mailtoUrl, siteConfig } from '@/lib/site'
 
 /**
  * Route-level error boundary. Next renders this in place of the page when a
@@ -29,8 +30,8 @@ export default function Error({
       </h1>
       <p className="max-w-md leading-relaxed text-pretty text-muted-foreground">
         This page failed to load. Try again — if it keeps happening, reach us at{' '}
-        <a className="font-medium text-ocean hover:text-ocean-deep" href="mailto:hola@eddystours.mx">
-          hola@eddystours.mx
+        <a className="font-medium text-ocean hover:text-ocean-deep" href={mailtoUrl()}>
+          {siteConfig.email}
         </a>
         .
       </p>

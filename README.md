@@ -145,10 +145,24 @@ from an authenticated administrator session.
 
 The seed file contains an earlier eight-tour demo catalog and sample departures. Apply it
 only after reviewing the dates and replacing them with real operator availability. Add the
-two public Supabase variables to Vercel after the hosted database is ready. The service-role
-key must remain server-only and is not required for public catalog reads. Production keeps
-serving fallback data until `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are configured in Vercel.
+two public Supabase variables to the Hostinger web app after the hosted database is ready
+and redeploy (they are inlined at build time). The service-role key must remain server-only
+and is not required for public catalog reads. Production keeps serving fallback data until
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are configured.
+
+## Deployment
+
+Production runs on Hostinger Node.js Web Apps, deployed from the `main` branch of GitHub.
+The full runbook (plan, environment variables, DNS migration from Wix, launch checklist and
+marketing setup) is in `docs/despliegue-hostinger.md`. Required variables:
+
+- `NEXT_PUBLIC_SITE_URL=https://www.eddystourspv.com`
+- `NEXT_PUBLIC_GA_ID` (Google Analytics 4, optional)
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` once Supabase exists
+
+Public contact details (email, WhatsApp number) live in `lib/site.ts`. Set
+`siteConfig.whatsapp` to the business number in international format (digits only) to
+enable the "Send by WhatsApp" action in the checkout; leave it empty to hide it.
 
 ## Quality checks
 
